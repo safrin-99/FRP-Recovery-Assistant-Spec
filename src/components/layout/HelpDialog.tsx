@@ -27,6 +27,10 @@ export function HelpDialog() {
           <h3 className="mt-5 text-[15px] font-semibold text-fg">Yang dilakukan aplikasi</h3>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-fg-2">
             <li>Memeriksa koneksi USB, ADB, dan Fastboot serta menampilkan log diagnosis.</li>
+            <li>
+              Screen Lock Recovery: mencatat keputusan data pelanggan per tiket, lalu memandu reset resmi (setelah
+              preflight dan persetujuan eksplisit) atau pemeriksaan Data Preservation.
+            </li>
             <li>Menunjukkan panduan pemulihan akun dan dukungan dari produsen resmi.</li>
             <li>Menjelaskan hasil diagnosis lewat AI Assistant (opsional, dengan persetujuan Anda).</li>
           </ul>
@@ -34,7 +38,10 @@ export function HelpDialog() {
           <h3 className="mt-5 text-[15px] font-semibold text-fg">Yang tidak dilakukan aplikasi</h3>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-fg-2">
             <li>Tidak membuka PIN/pola, tidak menonaktifkan atau melewati FRP, dan tidak mendekripsi data.</li>
-            <li>Tidak melakukan factory reset, flashing, unlock bootloader, atau penghapusan data.</li>
+            <li>
+              Tidak menjalankan factory reset, wipe, flashing, atau unlock bootloader dari komputer. Reset dilakukan
+              teknisi langsung di perangkat mengikuti panduan resmi.
+            </li>
             <li>Tidak meminta atau menyimpan PIN, pola, kata sandi, OTP, atau token akun.</li>
           </ul>
 
@@ -48,8 +55,9 @@ export function HelpDialog() {
             </li>
           </ul>
           <p className="mt-5 text-xs text-fg-muted">
-            Versi ini (Milestone 2) mendeteksi perangkat lewat ADB/Fastboot dan hanya membaca status. Riwayat log
-            permanen, AI Assistant, dan akun cloud belum tersedia.
+            Versi ini mendeteksi perangkat lewat ADB/Fastboot (hanya membaca status) dan menyediakan Screen Lock
+            Recovery. Catatan tiket dapat disimpan ke Supabase bila build dikonfigurasi dan Anda masuk; riwayat log
+            permanen dan AI Assistant belum tersedia.
           </p>
         </Dialog.Content>
       </Dialog.Portal>

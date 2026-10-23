@@ -6,6 +6,7 @@ const SHOTS = 'e2e/__screenshots__/actual'
 
 const PAGES = [
   { label: 'Home', id: 'home' },
+  { label: 'Screen Lock Recovery', id: 'screen-lock' },
   { label: 'FRP Recovery', id: 'frp-recovery' },
   { label: 'AI Assistant', id: 'ai-assistant' },
   { label: 'Device Info', id: 'device-info' },
@@ -112,7 +113,7 @@ test.describe('1536×1024 (target referensi)', () => {
   })
 
   test('every page renders without native dropdowns or horizontal overflow', async ({ page }) => {
-    // 9 halaman + screenshot: bisa melewati batas default 30 dtk saat worker paralel sibuk.
+    // 10 halaman + screenshot: bisa melewati batas default 30 dtk saat worker paralel sibuk.
     test.setTimeout(90_000)
     await enableDemo(page)
     for (const target of PAGES) {
@@ -189,6 +190,67 @@ test.describe('1536×1024 (target referensi)', () => {
   })
 })
 
+async function chooseOption(page: Page, label: string, option: string) {
+  const trigger = page.getByRole('combobox', { name: label })
+  await trigger.focus()
+  await page.keyboard.press('Enter')
+  await page.getByRole('option', { name: option, exact: true }).click()
+  await expect(page.getByRole('listbox')).toBeHidden()
+  await expect(trigger).toHaveText(new RegExp(option.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+}
+
+test.describe('Screen Lock Recovery', () => {
+  test.use({ viewport: { width: 1536, height: 1024 } })
+
+  test('follows the per-ticket customer choice and opens the official guide only after consent', async ({ page }) => {
+    test.setTimeout(60_000)
+    await goTo(page, 'Screen Lock Recovery')
+    await page.screenshot({ path: `${SHOTS}/screen-lock-start-1536x1024.png` })
+    await page.getByRole('button', { name: 'Mulai tiket baru' }).click()
+
+    // Tiket baru: tidak ada preferensi/consent bawaan, reset terkunci.
+    await expect(page.getByRole('combobox', { name: 'Preferensi data pelanggan' })).toHaveText(/Tanyakan ke pelanggan/)
+    await expect(page.getByText('Preferensi data pelanggan untuk tiket ini belum dipilih.')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Minta persetujuan reset' })).toHaveCount(0)
+    expect(await visibleNativeDropdowns(page)).toBe(0)
+    expect(await horizontalOverflow(page)).toBe(false)
+    await page.screenshot({ path: `${SHOTS}/screen-lock-new-ticket-1536x1024.png` })
+
+    await chooseOption(page, 'Tipe masalah', 'Lupa PIN/pola/sandi layar')
+    await chooseOption(page, 'Merek', 'Xiaomi')
+    await page.getByRole('switch', { name: 'Saya menangani perangkat ini dengan izin pemilik' }).click()
+    await chooseOption(page, 'Preferensi data pelanggan', 'Data harus dipertahankan')
+    await expect(page.getByText(/Data harus dipertahankan — jangan reset, wipe, flash/)).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Minta persetujuan reset' })).toHaveCount(0)
+
+    await chooseOption(page, 'Preferensi data pelanggan', 'Setuju hapus data')
+    const request = page.getByRole('button', { name: 'Minta persetujuan reset' })
+    await expect(request).toBeDisabled()
+    await chooseOption(page, 'Kesiapan akun pasca-reset', 'Tidak diketahui')
+    await expect(page.getByText('Perangkat mungkin meminta verifikasi akun setelah reset').first()).toBeVisible()
+    await page.getByRole('switch', { name: 'Pelanggan memahami data lokal akan dihapus' }).click()
+    await page.getByRole('switch', { name: 'Pelanggan memahami verifikasi akun dapat tetap diminta' }).click()
+    await expect(request).toBeEnabled()
+    await page.locator('main').evaluate((el) => el.scrollTo({ top: 0 }))
+    await page.screenshot({ path: `${SHOTS}/screen-lock-preflight-1536x1024.png` })
+
+    await request.click()
+    const dialog = page.getByRole('alertdialog')
+    await expect(dialog).toContainText('menghapus seluruh data lokal')
+    await page.waitForTimeout(250)
+    await page.screenshot({ path: `${SHOTS}/screen-lock-consent-1536x1024.png` })
+    await dialog.getByRole('button', { name: 'Saya menyetujui panduan reset' }).click()
+
+    const reset = page.getByRole('region', { name: /Jalur A/ })
+    await expect(reset.getByText('Panduan resmi Xiaomi', { exact: true })).toBeVisible()
+    await expect(reset.getByText('Model belum terverifikasi').first()).toBeVisible()
+    await expect(page.locator('main').getByRole('button', { name: /wipe|flash|unlock|erase|bypass/i })).toHaveCount(0)
+    await expect(page.locator('body')).not.toContainText(/bypass/i)
+    await reset.getByText('Panduan resmi Xiaomi', { exact: true }).scrollIntoViewIfNeeded()
+    await page.screenshot({ path: `${SHOTS}/screen-lock-guide-1536x1024.png` })
+  })
+})
+
 test.describe('Tema terang', () => {
   test.use({ viewport: { width: 1536, height: 1024 } })
 
@@ -207,10 +269,10 @@ test.describe('Tema terang', () => {
     await page.waitForTimeout(300)
     expect(await horizontalOverflow(page)).toBe(false)
     await page.screenshot({ path: `${SHOTS}/light-home-demo-1536x1024.png` })
-    for (const target of ['FRP Recovery', 'Settings', 'Logs'] as const) {
+    for (const target of ['Screen Lock Recovery', 'FRP Recovery', 'Settings', 'Logs'] as const) {
       await goTo(page, target)
       expect(await visibleNativeDropdowns(page)).toBe(0)
-      await page.screenshot({ path: `${SHOTS}/light-${target.toLowerCase().replace(' ', '-')}-1536x1024.png` })
+      await page.screenshot({ path: `${SHOTS}/light-${target.toLowerCase().replaceAll(' ', '-')}-1536x1024.png` })
     }
 
     // Kembalikan ke gelap agar tidak memengaruhi uji lain di profil yang sama.
@@ -243,6 +305,15 @@ test.describe('1200×760 (ukuran minimum nyaman)', () => {
 
 test.describe('1280×672 (laptop 1920×1080 @150%, jendela Tauri ter-maximize)', () => {
   test.use({ viewport: { width: 1280, height: 672 } })
+
+  test('Screen Lock Recovery stays usable on a maximized laptop window', async ({ page }) => {
+    await expect(sidebar(page).getByRole('button', { name: 'Settings', exact: true })).toBeInViewport()
+    await goTo(page, 'Screen Lock Recovery')
+    await page.getByRole('button', { name: 'Mulai tiket baru' }).click()
+    expect(await horizontalOverflow(page)).toBe(false)
+    expect(await visibleNativeDropdowns(page)).toBe(0)
+    await page.screenshot({ path: `${SHOTS}/screen-lock-1280x672.png` })
+  })
 
   test('brand buttons form an even grid without orphan rows', async ({ page }) => {
     expect(await horizontalOverflow(page)).toBe(false)
@@ -283,6 +354,8 @@ test.describe('1024×640 (minWidth/minHeight jendela Tauri)', () => {
 
   test('every page stays reachable without horizontal overflow', async ({ page }) => {
     await enableDemo(page)
+    // 10 item sidebar tetap muat tanpa terpotong.
+    await expect(sidebar(page).getByRole('button', { name: 'Settings', exact: true })).toBeInViewport()
     for (const target of PAGES) {
       await goTo(page, target.label)
       await expect(page.locator('main')).toHaveAttribute('data-page', target.id)

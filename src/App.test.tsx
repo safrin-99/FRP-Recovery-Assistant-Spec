@@ -134,8 +134,10 @@ describe('App shell', () => {
     await user.click(screen.getByRole('combobox', { name: 'Layar perangkat terkunci?' }))
     await user.click(await screen.findByRole('option', { name: 'Ya' }))
     expect(await screen.findByTestId('data-preservation-banner')).toHaveTextContent(
-      'Prioritas: pertahankan data — jangan reset/flash sebelum memahami risiko.',
+      'Data harus dipertahankan — jangan reset/flash sebelum keputusan pelanggan dicatat.',
     )
+    await user.click(screen.getByRole('button', { name: 'Buka Screen Lock Recovery' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Screen Lock Recovery' })).toBeInTheDocument()
   })
 
   it('keeps the AI Assistant in a "not configured" state without fake answers', async () => {

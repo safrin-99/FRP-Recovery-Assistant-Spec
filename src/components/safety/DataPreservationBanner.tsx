@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 import { selectDataPreservation, useAppStore } from '@/store/appStore'
 
 /**
- * Data Preservation Mode (PRD §8, DESIGN.md §17). Muncul ketika pengguna menyatakan
+ * Data Preservation Mode (PRD v2.4 §8, DESIGN.md §17). Muncul ketika pengguna menyatakan
  * layar terkunci dan data penting/backup belum pasti.
  */
 export function DataPreservationBanner({ className }: { className?: string }) {
@@ -23,16 +23,16 @@ export function DataPreservationBanner({ className }: { className?: string }) {
       <DatabaseBackup aria-hidden className="mt-0.5 size-5 shrink-0 text-warning" />
       <div className="min-w-0 text-fg-2">
         <p className="font-semibold text-fg">
-          Prioritas: pertahankan data — jangan reset/flash sebelum memahami risiko.
+          Data harus dipertahankan — jangan reset/flash sebelum keputusan pelanggan dicatat.
         </p>
         <p>
-          Periksa backup dari perangkat lain atau akun cloud terlebih dahulu, lalu konsultasikan dengan layanan resmi.{' '}
+          Catat preferensi data pelanggan untuk tiket ini dan periksa backup dari perangkat lain atau akun cloud.{' '}
           <button
             type="button"
-            onClick={() => setPage('frp-recovery')}
+            onClick={() => setPage('screen-lock')}
             className="focus-ring rounded-ui-sm font-medium text-cyan underline-offset-4 hover:underline"
           >
-            Lihat checklist pemulihan
+            Buka Screen Lock Recovery
           </button>
         </p>
       </div>

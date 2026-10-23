@@ -9,13 +9,16 @@ import { FlashResetPage } from '@/pages/FlashResetPage'
 import { FrpRecoveryPage } from '@/pages/FrpRecoveryPage'
 import { HomePage } from '@/pages/HomePage'
 import { LogsPage } from '@/pages/LogsPage'
+import { ScreenLockRecoveryPage } from '@/pages/ScreenLockRecoveryPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { ToolsPage } from '@/pages/ToolsPage'
 import { useAppStore } from '@/store/appStore'
+import { useCloudStore } from '@/store/cloudStore'
 import type { PageId } from '@/types/domain'
 
 const PAGES: Record<PageId, () => React.JSX.Element> = {
   home: HomePage,
+  'screen-lock': ScreenLockRecoveryPage,
   'frp-recovery': FrpRecoveryPage,
   'ai-assistant': AiAssistantPage,
   'device-info': DeviceInfoPage,
@@ -30,6 +33,9 @@ export function App() {
   const page = useAppStore((s) => s.page)
   const mainRef = useRef<HTMLElement>(null)
   const Page = PAGES[page]
+
+  // Status online/offline dan sesi Supabase (bila dikonfigurasi).
+  useEffect(() => useCloudStore.getState().init(), [])
 
   // Pindah halaman: kembali ke atas tanpa memindahkan fokus keyboard dari sidebar.
   useEffect(() => {

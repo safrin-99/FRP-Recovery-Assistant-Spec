@@ -37,7 +37,7 @@ export function LogsPage() {
     <div className="flex h-full min-h-[480px] flex-col gap-4">
       <PageHeader
         title="Logs"
-        description="Log sesi dengan waktu lokal, kategori, dan tingkat severity. Riwayat tersimpan dan ekspor dijadwalkan pada Milestone 3."
+        description="Log sesi aktif dengan waktu lokal, kategori, dan tingkat severity. Log belum disimpan ke cloud; riwayat cloud dan ekspor log belum tersedia."
         actions={<ClearLogsButton />}
       />
       <Panel aria-label="Filter log" className="flex flex-wrap items-end gap-4 p-4">

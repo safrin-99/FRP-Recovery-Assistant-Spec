@@ -1,71 +1,75 @@
-# FRP Recovery Assistant — Spec Pack v2.0
+# FRP Recovery Assistant — Spec Pack v2.4
 
 Paket spesifikasi untuk membangun aplikasi desktop Windows melalui Claude Code.
 
 ## Isi paket
 
-- `PRD.md` — kebutuhan, scope, arsitektur, keamanan, AI, dropdown, pengujian, dan acceptance criteria.
-- `DESIGN.md` — sistem visual, layout, design tokens, AI UI states, custom dropdown components, dan visual QA.
-- `CLAUDE.md` — aturan kerja khusus Claude Code, workflow audit, implementation constraints, dan prompt awal.
-- `reference-ui.png` — referensi layout/palette visual asli. Teks lama yang menyiratkan FRP bypass tidak menjadi spesifikasi operasional.
+- `PRD.md` — kebutuhan produk, scope, arsitektur, Supabase PostgreSQL sebagai database utama, Auth/RLS, alur Screen Lock Recovery berbasis preferensi data dan consent reset per tiket, keamanan, AI, dropdown, pengujian, dan acceptance criteria.
+- `DESIGN.md` — sistem visual, layout, design tokens, Auth/cloud states, custom dropdown components, dan visual QA.
+- `CLAUDE.md` — aturan kerja khusus Claude Code, keamanan Supabase, workflow audit, implementation constraints, dan prompt awal.
+- `SUPABASE_SETUP.md` — langkah konfigurasi proyek Supabase, migration, Auth, environment, dan checklist keamanan.
+- `.env.example` — contoh konfigurasi client yang aman (tanpa secret).
+- `supabase/migrations/20261023000100_initial_schema.sql` — migration SQL awal untuk skema, grants, indexes, dan RLS policies.
+- `reference-ui.png` — referensi layout/palette visual. Teks mockup lama yang menyiratkan FRP bypass bukan spesifikasi operasional.
 
 ## Cara memulai di Claude Code
 
-1. Extract folder ini ke root repository proyek.
-2. Pastikan screenshot ada sebagai `reference-ui.png` pada lokasi yang sama dengan dokumen.
-3. Buka Claude Code pada root repository sehingga `CLAUDE.md` terbaca.
-4. Gunakan prompt awal dari bagian akhir `CLAUDE.md`. Minta Claude mengaudit repository terlebih dahulu sebelum menyentuh kode.
-5. Implementasikan bertahap: visual shell → diagnosis lokal → penyimpanan → AI Assistant → quality/release.
+1. Extract paket ini ke root repository proyek.
+2. Pastikan `reference-ui.png` tersedia di root yang sama dengan dokumen.
+3. Baca `SUPABASE_SETUP.md` dan buat proyek Supabase yang benar-benar milik aplikasi ini; jangan mengasumsikan project ref atau key tersedia.
+4. Copy `.env.example` ke `.env.local`, lalu isi URL dan publishable key dari Supabase Dashboard. Jangan menaruh service-role/secret key di aplikasi.
+5. Jalankan migration SQL lewat Supabase CLI/Dashboard sesuai setup yang dijelaskan, lalu verifikasi RLS.
+6. Buka Claude Code pada root repository dan gunakan prompt awal dari `CLAUDE.md`. Minta audit sebelum perubahan kode.
+7. Implementasikan bertahap: visual shell → diagnosis lokal → Screen Lock Recovery dua jalur → Supabase Auth/schema/RLS + recovery case history → AI Assistant → QA/release.
 
 ## Keputusan penting yang sudah dikunci
 
-- Stack target: Tauri 2, React, TypeScript, Vite, Tailwind CSS 4, Rust, SQLite, Android Platform-Tools.
-- Supabase dipakai sebagai cloud **opsional** model hybrid (v2.1): akun teknisi, sinkron/backup riwayat tersanitasi, laporan bersama tim, dan backend AI tepercaya lewat Edge Functions. SQLite tetap sumber kebenaran; aplikasi berfungsi penuh tanpa login/internet. Lihat `PRD.md` §6.1.
-- Produk adalah diagnosis dan pendamping pemulihan resmi, bukan tool exploit atau bypass FRP otomatis.
-- AI runtime bersifat opsional/provider-agnostic dan tidak mengendalikan perangkat secara otonom.
-- Seluruh dropdown UI adalah custom-styled dan tidak menampilkan popup native browser.
-- Diagnostik inti harus tetap berguna walaupun AI/cloud tidak tersedia.
-- Operasi wipe/reset/flash bukan bagian MVP.
+- Target: Windows desktop via Tauri 2, React, TypeScript, Vite, Tailwind CSS 4, Rust, Android Platform-Tools.
+- **Supabase PostgreSQL adalah database utama wajib** untuk data cloud persisten. Supabase Auth + RLS wajib, bukan opsional.
+- Publishable key boleh berada pada client; `service_role`/secret key dan password database dilarang dibundel ke installer/source.
+- Diagnosis perangkat tetap berjalan secara lokal/offline; riwayat cloud memerlukan jaringan dan login. Offline state tidak boleh dilaporkan sebagai data tersimpan.
+- Simpan diagnosis ke cloud dengan persetujuan eksplisit dan sanitasi data. Riwayat AI default OFF.
+- Seluruh dropdown UI adalah custom-styled; tidak menggunakan popup native browser.
+- Screen Lock Recovery mengikuti pilihan pelanggan per tiket: setelah consent eksplisit kehilangan data dan preflight, guided factory reset resmi menjadi jalur operasional utama; bila data harus dipertahankan atau pilihan belum jelas, gunakan Data Preservation. Consent tidak boleh diasumsikan dari tiket lain atau kebiasaan pelanggan.
+- MVP tidak menjalankan generic one-click wipe/reset, unlock bootloader, atau flashing dari komputer; panduan reset dilakukan teknisi pada perangkat berdasarkan dokumentasi resmi.
+- Tidak ada tool exploit/bypass FRP otomatis.
 
-**Penting:** dokumen ini adalah spesifikasi. Dokumen bukan bukti bahwa aplikasi, AI provider, atau pengujian hardware sudah diimplementasikan.
+**Penting:** file di paket adalah spesifikasi dan migration awal, bukan bukti bahwa aplikasi telah terimplementasi, Supabase sudah dikonfigurasi, atau RLS/test sudah dijalankan.
+
+## Task implementasi untuk Claude Code
+
+- `TASK-02-DEVICE-RECOVERY.md` berisi instruksi lanjutan setelah Task 01 selesai: audit implementasi yang ada, bedakan operasi nyata dari panduan, dan bangun hanya operasi pemulihan resmi yang kompatibel serta dapat diuji. Jangan jalankan task ini sebelum Claude menyelesaikan orientasi/audit awal.
 
 ---
 
-## Pengembangan (Milestone 2 — diagnosis perangkat, read-only)
+## Implementasi di repository ini
 
 ### Status saat ini
 
 | Area | Status |
 |---|---|
-| UI React (9 halaman, sidebar, titlebar, panel Home) | Ada; diuji Vitest + Playwright (Edge) |
+| UI React (10 halaman, sidebar, titlebar, panel Home) | Ada; diuji Vitest + Playwright (Edge) |
 | `AppSelect` / `AppCombobox` kustom | Ada; tanpa `<select>`/`<datalist>` native, diuji keyboard |
 | Mode Demo (data contoh berbadge `DEMO`) | Ada; nonaktif secara default (Settings → Mode Demo) |
 | Tema gelap (default) / terang | Ada; Settings → Tampilan → Tema, disimpan per komputer |
-| Petunjuk "kenapa tidak terdeteksi" + panduan "Cara menghubungkan" | Ada; Auto Detect membaca antarmuka USB dari Windows (mis. ponsel terlihat tetapi USB debugging mati) |
-| Pencarian & verifikasi Platform-Tools (halaman Tools) | Ada; diuji dengan adb/fastboot 37.0.1 asli |
-| Auto Detect + Device Info (ADB/Fastboot) | Ada; diuji di aplikasi desktop dengan alat asli **tanpa ponsel** (jalur "tidak ada perangkat"). Uji dengan ponsel fisik (authorized/unauthorized/Fastboot) **belum** |
-| Diagnosis bertahap + batal (ADB Diagnostics, Recovery/Fastboot Guide) | Ada; hanya membaca status. Pembatalan diuji di unit test, belum dengan ponsel |
-| Account Recovery / Official Service | Membuka checklist resmi / tautan dukungan resmi sesuai brand (tanpa perintah perangkat) |
-| Status driver (halaman Drivers) | Ada; membaca Device Manager lewat SetupAPI, tidak memasang driver |
-| Tautan resmi di aplikasi desktop | Lewat perintah backend `open_official_link` (hanya ID); belum diklik dalam uji otomatis agar tidak membuka browser |
-| SQLite, riwayat log, ekspor, pengaturan permanen | **Belum** — Milestone 3 (pengaturan hanya berlaku per sesi) |
-| AI Assistant (provider, consent, redaksi) | **Belum** — Milestone 4; status `Belum dikonfigurasi` |
-| Supabase (Auth, sinkron/backup, laporan tim) | **Belum** — Milestone 3; project Supabase khusus belum dibuat |
-| Backend AI via Supabase Edge Functions | **Belum** — Milestone 4 |
-| Shell Tauri (`src-tauri/`) | Dikompilasi dan dijalankan (`npm run tauri dev`) di Windows 11 dengan Rust 1.99.1 + VS Build Tools 2022; jendela ter-maximize dan status maximize terbaca lewat IPC. Klik minimize/maximize/close dan drag titlebar belum diuji otomatis |
-| Installer Windows | **Belum** — Milestone 5 |
-
-Aplikasi tidak melakukan factory reset, flashing, unlock bootloader, penghapusan data, atau
-bypass FRP, dan tidak meminta PIN/pola/kata sandi/OTP.
+| Auto Detect + Device Info (ADB/Fastboot, read-only) | Ada; diuji dengan alat asli **tanpa ponsel**. Uji dengan ponsel fisik (authorized/unauthorized/Fastboot) **belum** |
+| Screen Lock Recovery (PRD v2.4 §7.2) | Ada: intake tiket dengan preferensi data pelanggan tanpa default, Jalur A Guided Factory Reset (preflight, kesiapan akun, dialog consent per tiket, panduan resmi, checklist pasca-reset) dan Jalur B Data Preservation. Hanya panduan; **tidak ada** perintah reset/wipe/flash ke perangkat. Diuji unit/komponen + E2E (browser) |
+| Supabase Auth + `recovery_cases` (simpan/riwayat/hapus) | Kode ada; diuji dengan client tiruan. **Belum** diuji terhadap project Supabase sungguhan |
+| Migration + RLS | Diverifikasi lokal dengan PGlite (`npm run test:db:local`) + uji mutasi. **Belum** diterapkan ke project Supabase |
+| Sinkron pengaturan, riwayat log/diagnosis cloud, ekspor | **Belum** |
+| AI Assistant | **Belum**; status `Belum dikonfigurasi` |
+| Installer Windows | Versi uji pernah dibangun; perlu dibangun ulang untuk perubahan ini |
 
 ### Prasyarat
 
 - Node.js ≥ 22.12 (diuji dengan 26.1.0) dan npm. Lockfile: `package-lock.json` (jangan membuat lockfile kedua).
-- Untuk menjalankan aplikasi desktop (Tauri): Rust 1.99.1 via `rustup` (dikunci di
-  `src-tauri/rust-toolchain.toml`), Visual Studio Build Tools dengan workload *Desktop development with C++*
-  (MSVC + Windows SDK), dan WebView2 Runtime.
-- Untuk diagnosis perangkat (mulai Milestone 2): Android SDK Platform-Tools resmi dari
+- Aplikasi desktop (Tauri): Rust 1.99.1 via `rustup` (dikunci di `src-tauri/rust-toolchain.toml`), Visual Studio
+  Build Tools dengan workload *Desktop development with C++*, dan WebView2 Runtime.
+- Diagnosis perangkat: Android SDK Platform-Tools resmi dari
   <https://developer.android.com/tools/releases/platform-tools>.
+- Cloud (opsional saat pengembangan): salin `.env.example` ke `.env.local`, isi URL dan **publishable key**
+  project Supabase. Aplikasi menolak secret/service_role key. Tanpa konfigurasi, UI menampilkan
+  `Supabase belum dikonfigurasi` dan `Belum tersimpan ke cloud`; diagnosis lokal tetap berjalan.
 
 ### Perintah
 
@@ -76,49 +80,40 @@ npm run typecheck    # TypeScript (app + config/e2e)
 npm run lint         # ESLint, termasuk larangan <select>/<datalist> dan impor shell
 npm test             # Vitest + React Testing Library
 npm run test:e2e     # Playwright memakai Microsoft Edge terpasang (channel msedge)
+npm run test:db:local  # migration + tes RLS di PGlite (stub auth lokal, bukan pengganti Supabase asli)
 npm run build        # typecheck + build produksi Vite ke dist/
 npm run tauri dev    # jendela desktop — butuh Rust + MSVC
 ```
 
-`npm run tauri` memakai `scripts/tauri.mjs`: bila terminal dibuka sebelum Rust dipasang (PATH belum diperbarui),
-skrip menambahkan `%USERPROFILE%\.cargo\bin` ke PATH untuk perintah itu saja.
+Backend Rust (jalankan di `src-tauri/`): `cargo test`, `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check`.
 
-Backend Rust (jalankan di `src-tauri/`):
+Tes RLS untuk project Supabase sungguhan: jalankan `supabase/tests/rls_recovery_cases.sql` di SQL Editor
+project pengembangan setelah migration diterapkan (skrip membuat dua user uji dan menghapusnya kembali).
 
-```bash
-cargo test                                   # unit test parser, runner proses, redaksi, ACL state
-cargo test -- --ignored --nocapture          # smoke test dengan adb/fastboot asli + Device Manager
-cargo clippy --all-targets -- -D warnings
-cargo fmt --check
-```
-
-### Keamanan backend (Milestone 2)
+### Keamanan backend
 
 - Perintah IPC hanya: `check_platform_tools`, `detect_devices`, `start_diagnosis`, `cancel_diagnosis`,
-  `check_driver_status`, `open_official_link`. Masing-masing diizinkan eksplisit lewat ACL (`build.rs` +
-  `capabilities/default.json`); tidak ada plugin shell/fs/http dan tidak ada runner perintah generik.
-- adb/fastboot hanya dipanggil dengan argumen tetap (`version`, `devices`, `shell getprop <kunci allowlist>`,
-  `getvar product`), dengan timeout, pembatalan, batas output 256 KB, dan tanpa jendela konsol.
-- Serial perangkat tidak pernah dikirim ke UI (diganti ID sesi `device-N`) dan disamarkan di log; path profil
-  pengguna ditampilkan sebagai `%USERPROFILE%`. Semua respons backend divalidasi Zod di frontend.
-- Perintah `adb devices` pertama menyalakan server ADB lokal (`localhost:5037`) yang tetap berjalan di latar
-  belakang, sama seperti alat Android lain.
+  `check_driver_status`, `open_official_link`, masing-masing diizinkan eksplisit lewat ACL. Tidak ada plugin
+  shell/fs/http dan tidak ada runner perintah generik.
+- adb/fastboot hanya dipanggil dengan argumen tetap, dengan timeout, pembatalan, batas output 256 KB, dan tanpa
+  jendela konsol. Serial perangkat tidak dikirim ke UI dan disamarkan di log.
+- Sesi Supabase hanya disimpan di memori (`persistSession: false`); penyimpanan token aman OS belum diimplementasikan,
+  sehingga pengguna masuk ulang setiap membuka aplikasi.
 
-Screenshot e2e (1536×1024, 1200×760, 1100×760, 1024×640) ditulis ke `e2e/__screenshots__/actual/`
-(diabaikan git) untuk dibandingkan manual dengan `reference-ui.png`. Baseline regresi piksel belum ditetapkan.
+Screenshot e2e ditulis ke `e2e/__screenshots__/actual/` (diabaikan git) untuk dibandingkan manual dengan
+`reference-ui.png`. Baseline regresi piksel belum ditetapkan.
 
 ### Aset pihak ketiga
 
 - Logo brand Samsung, Xiaomi, OPPO, vivo, HUAWEI, Motorola, dan ASUS di `src/data/brandIcons.ts` berasal dari
   [Simple Icons](https://simpleicons.org) v16.35.0 (data SVG berlisensi CC0-1.0). Merek dan logo tetap milik
-  pemiliknya masing-masing dan dipakai hanya untuk menunjukkan merek perangkat; periksa pedoman merek masing-masing
-  sebelum rilis komersial.
-- realme, Infinix, dan TECNO tidak tersedia di Simple Icons, sehingga memakai monogram huruf sampai ada aset resmi berlisensi.
+  pemiliknya masing-masing; periksa pedoman merek masing-masing sebelum rilis komersial.
+- realme, Infinix, dan TECNO memakai monogram huruf sampai ada aset resmi berlisensi.
 - Font Inter Variable dibundel lewat `@fontsource-variable/inter` (SIL Open Font License).
 
 ### Troubleshooting ADB
 
-- `adb` tidak dikenali: pasang Platform-Tools resmi dan atur lokasinya (pengaturan path menyusul di Milestone 2–3).
+- `adb` tidak dikenali: pasang Platform-Tools resmi (halaman Tools menampilkan lokasi yang dicari).
 - Perangkat `unauthorized`: buka kunci layar dan setujui dialog *Allow USB debugging* pada perangkat.
 - Perangkat tidak muncul: coba kabel data lain/port USB langsung, lalu pasang driver USB resmi produsen
   (<https://developer.android.com/studio/run/oem-usb>).

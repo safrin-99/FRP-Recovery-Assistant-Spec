@@ -6,6 +6,7 @@ import {
   House,
   LifeBuoy,
   Lock,
+  LockKeyhole,
   RefreshCcw,
   Settings,
   Smartphone,
@@ -19,6 +20,7 @@ import type { BrandId, MethodId, PageId } from '@/types/domain'
 /** Urutan sidebar mengikuti PRD §7 / DESIGN.md §6. */
 export const NAV_ITEMS: ReadonlyArray<{ id: PageId; label: string; icon: LucideIcon }> = [
   { id: 'home', label: 'Home', icon: House },
+  { id: 'screen-lock', label: 'Screen Lock Recovery', icon: LockKeyhole },
   { id: 'frp-recovery', label: 'FRP Recovery', icon: Lock },
   { id: 'ai-assistant', label: 'AI Assistant', icon: Bot },
   { id: 'device-info', label: 'Device Info', icon: Smartphone },
@@ -31,6 +33,7 @@ export const NAV_ITEMS: ReadonlyArray<{ id: PageId; label: string; icon: LucideI
 
 export const PAGE_TITLES: Record<PageId, string> = {
   home: 'Home',
+  'screen-lock': 'Screen Lock Recovery',
   'frp-recovery': 'FRP Recovery',
   'ai-assistant': 'AI Recovery Assistant',
   'device-info': 'Device Info',
@@ -108,6 +111,9 @@ export type OfficialLinkId =
   | 'androidHelp'
   | 'xiaomiAccount'
   | 'samsungAccount'
+  | 'googleUnlockHelp'
+  | 'xiaomiUnlockQa'
+  | 'xiaomiForgotScreenPassword'
 
 export interface OfficialLink {
   id: OfficialLinkId
@@ -163,6 +169,25 @@ export const OFFICIAL_LINKS: Record<OfficialLinkId, OfficialLink> = {
     label: 'Akun Samsung',
     description: 'Situs resmi Akun Samsung untuk pemulihan akun.',
     url: 'https://account.samsung.com',
+  },
+  // PRD v2.3 §17 — rujukan resmi Screen Lock Recovery.
+  googleUnlockHelp: {
+    id: 'googleUnlockHelp',
+    label: 'Google: Tidak dapat membuka kunci perangkat',
+    description: 'Panduan resmi Android bila PIN/pola/sandi layar terlupa, termasuk dampak reset.',
+    url: 'https://support.google.com/android/answer/7663172?hl=id',
+  },
+  xiaomiUnlockQa: {
+    id: 'xiaomiUnlockQa',
+    label: 'Xiaomi: Phone Unlocking Q&As',
+    description: 'Tanya-jawab resmi Xiaomi, termasuk peringatan Wipe Data dan akun Xiaomi pasca-reset.',
+    url: 'https://www.mi.com/global/support/faq/details/KA-07085/',
+  },
+  xiaomiForgotScreenPassword: {
+    id: 'xiaomiForgotScreenPassword',
+    label: 'Xiaomi: The unlock screen password is forgotten',
+    description: 'Panduan resmi Xiaomi bila sandi layar terlupa.',
+    url: 'https://www.mi.com/global/support/faq/details/KA-492633/',
   },
 }
 

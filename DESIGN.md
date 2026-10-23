@@ -1,6 +1,6 @@
 # DESIGN.md — FRP Recovery Assistant / Android Recovery & Diagnostics Suite
 
-> **Versi revisi:** 2.2 — 23 Oktober 2026 (2.1: §18 Akun & Sinkronisasi untuk Supabase opsional; 2.2: §3.1 tema terang opsional atas permintaan pemilik proyek). Dokumen ini mengunci arah visual, states, dan perilaku komponen. Screenshot [`reference-ui.png`](./reference-ui.png) adalah referensi komposisi, proporsi, dan palette. Teks lama pada screenshot yang menyiratkan bypass tidak mengesampingkan label aman dan fitur yang ditetapkan `PRD.md`. Jangan mengganti UI dengan dashboard template generik atau mengubah desain utama tanpa persetujuan.
+> **Versi revisi:** 2.4 — 24 Oktober 2026. Dokumen ini mengunci arah visual, states, dan perilaku komponen. Screenshot [`reference-ui.png`](./reference-ui.png) adalah referensi komposisi, proporsi, dan palette. Teks lama pada screenshot yang menyiratkan bypass tidak mengesampingkan label aman dan fitur yang ditetapkan `PRD.md`. Jangan mengganti UI dengan dashboard template generik atau mengubah desain utama tanpa persetujuan.
 
 ## 1. Target Visual
 
@@ -100,14 +100,6 @@ Gunakan CSS custom properties dalam `src/styles/design-tokens.css` atau lokasi s
 
 Token boleh disetel secara kecil setelah dibandingkan dengan screenshot, tetapi jangan mengganti keseluruhan palette. Hindari menyebar hex color berbeda-beda langsung pada komponen.
 
-### 3.1 Tema terang (opsional)
-
-- Tema gelap tetap **default** dan acuan visual `reference-ui.png`. Tema terang adalah pilihan pengguna di Settings → Tampilan → Tema, disimpan per komputer.
-- Diterapkan lewat atribut `data-theme` pada `<html>` dengan token yang sama namanya (`--bg-*`, `--border-*`, `--text-*`, `--accent-*`, `--status-*`). Komponen tidak boleh memakai hex langsung agar kedua tema konsisten.
-- Palette terang: latar `#eef2f8`, panel `#ffffff`, raised `#f3f6fb`, border `#dde4ee`/`#c6d2e1`/`#93a6bf`, teks `#0f1b2d`/`#3b4d68`/`#5d6f8a`, aksen biru tetap `#1264f5`. Cyan/hijau/kuning/merah digelapkan (`#0a7ea4`, `#0b7d55`, `#9a5800`, `#c62f28`) agar kontras teks ≥ 4.5:1 di atas putih.
-- Hero banner tetap bernuansa gelap di kedua tema (`data-theme="dark"` pada hero) sebagai banner merek; teks di dalamnya memakai token gelap.
-- Kartu/brand/tombol terpilih tetap fill biru dengan teks putih di kedua tema.
-
 ## 4. Tipografi
 
 - Pilihan utama: **Inter Variable** yang dibundel secara lokal pada aplikasi jika lisensi dan paket proyek mendukung. Fallback: `Segoe UI`, `Arial`, `sans-serif`.
@@ -134,14 +126,15 @@ Token boleh disetel secara kecil setelah dibandingkan dengan screenshot, tetapi 
 ### Struktur
 
 1. Home
-2. FRP Recovery
-3. AI Assistant
-4. Device Info
-5. Flash / Factory Reset
-6. Tools
-7. Drivers
-8. Logs
-9. Settings
+2. Screen Lock Recovery
+3. FRP Recovery
+4. AI Assistant
+5. Device Info
+6. Flash / Factory Reset
+7. Tools
+8. Drivers
+9. Logs
+10. Settings
 
 ### Styling
 
@@ -310,7 +303,7 @@ Semua komponen perlu memiliki state default, hover, focus-visible, active, disab
 ### DON'T
 
 - Jangan mengubah layout menjadi sidebar kecil + banyak card generik.
-- Jangan mengganti warna utama tema default menjadi ungu, hijau, putih terang, atau palette baru. Tema terang hanya tersedia sebagai pilihan sesuai §3.1.
+- Jangan mengganti warna utama menjadi ungu, hijau, putih terang, atau palette baru.
 - Jangan menambahkan gradient/glow ke semua kartu.
 - Jangan menggunakan emoji, logo asal, placeholder lorem ipsum, atau font acak.
 - Jangan mengisi semua panel dengan angka dummy tanpa status Demo.
@@ -397,33 +390,86 @@ Sebelum menyatakan UI selesai, bandingkan screenshot build dengan `reference-ui.
 
 ### Safety states
 
-- Tambahkan `DataPreservationBanner` ketika pengguna menyatakan data penting atau backup belum diketahui: `Prioritas: pertahankan data — jangan reset/flash sebelum memahami risiko.`
-- AI tidak boleh memicu aksi device. Untuk MVP, CTA pada respons AI hanya `Lihat panduan`, `Salin checklist`, atau `Jalankan pemeriksaan aman` yang terhubung ke fungsi allowlist nyata.
-- Jika AI menyarankan langkah destruktif, sistem harus menolaknya atau menampilkan peringatan yang mengarahkan kembali ke kebijakan PRD. Tidak boleh ada automatic execution.
+- Intake Screen Lock Recovery harus meminta pilihan pelanggan per tiket: `Setuju hapus data`, `Data harus dipertahankan`, atau `Belum memutuskan`. Tidak ada consent default.
+- Jika pelanggan memilih `Setuju hapus data` dan memberikan consent eksplisit, tampilkan `Guided Factory Reset` sebagai jalur utama setelah preflight, termasuk status kesiapan akun Google/Xiaomi pasca-reset.
+- Tambahkan `DataPreservationBanner` jika pelanggan memilih mempertahankan data atau belum memutuskan: `Data harus dipertahankan — jangan reset/flash sebelum keputusan pelanggan dicatat.`
+- AI tidak boleh memicu aksi perangkat. CTA hanya `Lihat panduan`, `Salin checklist`, atau `Jalankan pemeriksaan aman` yang terhubung ke fungsi allowlist nyata.
+- Jika AI menyarankan langkah destruktif tanpa persetujuan atau mengabaikan preflight, UI harus menolak/mengarahkan ke kebijakan PRD. Tidak boleh ada automatic execution.
 - Desain panel tetap usable jika layanan AI tak tersedia; sertakan shortcut ke halaman diagnosis manual dan bantuan resmi.
 
 ### States required for QA
 
 - Empty conversation, prompt suggestions, processing, response success, network timeout, quota/provider error, invalid configuration, consent canceled, sensitive data redacted, retry, history cleared, and AI disabled.
 
-## 18. Akun & Sinkronisasi (Supabase, opsional)
 
-### Lokasi
+## 18. UI untuk Supabase, Akun, dan Riwayat Cloud
 
-- Bagian `Akun & Sinkronisasi` di halaman Settings, memakai panel, tipografi, dan komponen yang sama (`AppSwitch`, `AppSelect`, `ConfirmDialog`, `InlineAlert`). Jangan menambah item sidebar baru dan jangan mengubah komposisi utama.
-- Status sinkron ringkas boleh tampil sebagai teks + ikon kecil di Settings dan halaman Logs; jangan memakai warna hijau `Device Ready` untuk status cloud.
-- Laporan yang dibagikan ke tim diberi label teks `Dibagikan ke tim`, bukan hanya ikon/warna.
+Supabase adalah database utama untuk data persisten akun/riwayat. UI harus merefleksikan status koneksi, autentikasi, dan hasil operasi database yang benar-benar terjadi—bukan sekadar state sementara React.
 
-### States wajib
+### Status akun dan cloud
 
-- `Tidak masuk` (default) — fitur lokal penuh, tombol `Masuk` jelas.
-- `Masuk…`, `Masuk gagal` (pesan spesifik + `Coba lagi`).
-- `Sinkron nonaktif` (sudah login, belum consent) — tombol `Aktifkan sinkron` membuka dialog consent dengan pratinjau kategori data, tujuan, dan cara menonaktifkan.
-- `Tersinkron` (waktu terakhir sinkron), `Menunggu sinkron` (antrean offline + jumlah item), `Offline`, `Error sinkron` (pesan + `Coba lagi`).
-- `Consent dibatalkan`, `Keluar akun`, `Hapus data cloud` (lewat `ConfirmDialog` yang menjelaskan dampaknya).
+- Saat pengguna belum login, tampilkan entry point `Masuk untuk menyimpan ke cloud` dan pilihan `Lanjutkan sebagai tamu`. Auth view (masuk/daftar/lupa kata sandi) harus memakai layout, tipografi, warna, validasi inline, serta custom controls sesuai design tokens; jangan menambahkan UI login generik yang tidak serasi dengan aplikasi.
+- Jangan memaksa sign-in hanya untuk menjalankan diagnosis USB/ADB lokal. Akses riwayat dan penyimpanan Supabase memerlukan autentikasi.
 
-### Aturan visual
+- Sediakan view/modal autentikasi yang konsisten dengan design tokens: `Masuk`, `Buat akun`, `Lupa kata sandi`, status verifikasi email, loading, error, rate limit, dan sesi kedaluwarsa. Semua input/dropdown tetap custom-styled; jangan gunakan popup native browser select.
+- Diagnosis USB/ADB lokal dapat digunakan dalam mode tamu. Supabase cloud history/settings memerlukan internet dan login. Jangan memblokir diagnosis lokal hanya karena pengguna belum masuk.
+- Sediakan status yang jelas: `Tidak masuk`, `Cloud tersambung`, `Offline`, `Menyimpan`, `Tersimpan`, `Gagal menyimpan`, dan `Sesi berakhir`. Jangan tampilkan centang sukses sebelum server mengonfirmasi operasi.
+- Sebelum menyimpan diagnosis ke cloud untuk pertama kali, jelaskan data apa yang akan disimpan dan minta persetujuan. Tampilkan pilihan yang eksplisit seperti `Simpan ke Supabase`; jangan upload log/device snapshot diam-diam.
+- Jika offline atau belum masuk, bedakan `Log sesi aktif` dari `Riwayat cloud`. Pertahankan log selama sesi aktif, tawarkan ekspor lokal yang disanitasi, dan jangan mengklaim data sudah tersimpan. MVP tidak boleh berpura-pura memiliki offline sync queue.
 
-- Ikuti token yang ada; tidak ada palette baru untuk cloud. Gunakan `--accent-cyan` untuk info sinkron, `--status-warning` untuk antrean/offline, `--status-danger` untuk error.
-- Form login tidak boleh meminta kredensial akun Google/produsen perangkat; hanya akun aplikasi (Supabase Auth).
-- Status cloud tidak boleh disampaikan hanya dengan warna; sertakan teks.
+### Riwayat dan data cloud
+
+- Riwayat cloud menampilkan waktu, kategori, status, ringkasan, dan detail yang sudah disanitasi. Sertakan filter/search kustom, pagination, retry, empty state, loading skeleton, dan error state.
+- `Hapus`, `Bersihkan Riwayat`, dan `Ekspor` harus memakai operasi nyata. Penghapusan cloud memerlukan konfirmasi yang menjelaskan cakupan; setelah sukses, UI refresh dari data Supabase.
+- Jika riwayat AI diaktifkan, jelaskan bahwa percakapan disimpan di akun cloud Supabase. Default `Simpan riwayat AI` adalah OFF. Sediakan toggler, delete per conversation, dan clear history.
+- Jangan tampilkan API key, password, PIN, OTP, token, serial/IMEI, path pengguna, atau kredensial di history/log. Terapkan redaksi di service layer sebelum payload dikirim ke Supabase.
+- Ekspor laporan dilakukan ke file lokal melalui save dialog OS, menampilkan lokasi, dan menyebutkan apakah data perangkat terdapat di dalamnya. Ekspor bukan database backup.
+- Jika Supabase gagal/tidak terjangkau, UI tidak boleh hang. Sediakan `Coba lagi` dan ekspor lokal; diagnosis inti tetap berjalan lokal. Tampilkan pesan bahwa riwayat belum tersimpan ke cloud.
+
+### States wajib QA
+
+- Guest/no account, sign-in success/error, sign-up pending verification, password-reset flow, invalid credentials, expired session, RLS/permission denied, cloud connected, offline, saving, save success, save failed, rate-limited, empty history, loading, clear confirmation, cloud delete success/error, AI history disabled/enabled, consent canceled, and local export success/error.
+
+
+## 19. Screen Lock Recovery — Pilihan Jalur per Tiket
+
+Halaman ini menjadi alur utama untuk keluhan lupa PIN/pola/sandi layar. Pertahankan sistem visual utama; jangan merombak aplikasi menjadi dashboard generik.
+
+### Case intake
+
+- Gunakan dropdown/combobox kustom untuk merek, tipe masalah, kondisi akses, status backup, dan preferensi data.
+- Minta konfirmasi bahwa teknisi memiliki izin pemilik. Catat persetujuan reset secara terpisah dari otorisasi umum.
+- Pilihan preferensi data harus eksplisit: `Setuju hapus data`, `Data harus dipertahankan`, atau `Belum memutuskan`. Jangan memilih consent secara default atau menyalin consent dari tiket lain.
+- Jangan meminta PIN, pola rahasia, password akun, OTP, recovery code, token, atau konten pribadi pelanggan.
+- Ticket/case number dibuat aplikasi; informasi pribadi pelanggan opsional dan diminimalkan.
+
+### Jalur A — Guided Factory Reset (jalur utama ketika pelanggan menyetujui penghapusan data)
+
+- Tampilkan kartu utama `Reset Resmi — Menghapus Data` hanya setelah persetujuan eksplisit untuk tiket tersebut. Sebelum consent, kartu boleh terlihat sebagai opsi tetapi tombol lanjut tetap nonaktif dan risiko harus jelas.
+- Preflight wajib: izin pemilik terkonfirmasi; merek/model terverifikasi atau diberi warning; pelanggan memahami bahwa data lokal akan dihapus; backup ditinjau atau pelanggan menyatakan data boleh hilang; kesiapan akun Google/Xiaomi setelah reset ditanyakan tanpa meminta kredensial; consent dan versi teks persetujuan dicatat.
+- Jika pelanggan tidak mengetahui akun yang sebelumnya terikat, tampilkan peringatan `Perangkat mungkin meminta verifikasi akun setelah reset` dan rekomendasikan pemulihan akun resmi sebelum melanjutkan. Jangan menjanjikan reset akan menghapus FRP/akun Xiaomi.
+- Tombol akhir menggunakan `Saya menyetujui panduan reset`, bukan `Unlock`, `Bypass`, atau label ambigu.
+- Untuk MVP, tampilkan langkah dan tautan resmi sesuai merek/model; teknisi menjalankan reset pada perangkat mengikuti dokumentasi produsen. Tidak ada generic one-click wipe/erase atau perintah destruktif dari AI.
+- Setelah reset, tampilkan checklist setup awal, verifikasi akun resmi, pemulihan backup bila tersedia, dan arahan agar pelanggan memasang PIN/pola baru langsung pada perangkat setelah setup/akses sah. Jangan klaim selesai sampai setup/aktivasi benar-benar terverifikasi.
+
+### Jalur B — Data Preservation (jika pelanggan meminta data dipertahankan atau belum memutuskan)
+
+- Banner: `Data harus dipertahankan — jangan reset, wipe, flash, atau unlock bootloader sebelum keputusan pelanggan selesai.`
+- Checklist read-only: klasifikasikan screen lock vs App Lock/Privacy Lock vs account/FRP; periksa metode akses resmi yang masih bekerja; periksa backup/sinkronisasi dari perangkat lain; jalankan deteksi tanpa mengklaim akses data yang tidak tersedia.
+- Status hasil harus jujur: `Opsi resmi ditemukan`, `Backup terverifikasi`, `Tidak ada opsi non-destruktif terverifikasi`, `Perlu layanan resmi`, atau `Belum diketahui`.
+- Jika tidak ada metode resmi untuk mempertahankan data, jelaskan batasannya dan jangan tampilkan tombol universal unlock. Reset hanya dapat diaktifkan setelah pelanggan mengubah preferensi dan memberikan consent baru.
+
+### Catatan kasus dan Supabase
+
+- Simpan preferensi data pelanggan, merek/model, keluhan, status backup, status kesiapan akun pasca-reset, jalur terpilih, consent status/waktu, langkah dilakukan, dan outcome tersanitasi.
+- Jangan menyimpan PIN/pola/password/OTP/token, email akun, kredensial, atau IMEI/serial secara default.
+- Hasil yang valid: `Berhasil diverifikasi`, `Menunggu pemulihan akun`, `Dirujuk ke layanan resmi`, `Gagal`, dan `Belum diverifikasi`.
+
+### Pengujian interaksi
+
+- Consent tidak boleh diasumsikan atau diwariskan antar-tiket.
+- Jika consent eksplisit diberikan dan preflight terpenuhi, jalur reset menjadi pilihan utama.
+- Jika pilihan data `preserve` atau `unknown`, reset tidak boleh aktif sebagai tindakan utama sampai consent terpisah dicatat.
+- Menolak consent tidak boleh mengubah status menjadi reset disetujui.
+- Model/akun tidak diketahui harus menghasilkan warning, bukan instruksi yang ditebak.
+- Seluruh dropdown pada halaman ini menggunakan komponen kustom dan lulus keyboard accessibility tests.

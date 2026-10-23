@@ -14,11 +14,14 @@ pub enum OfficialLinkId {
     AndroidHelp,
     XiaomiAccount,
     SamsungAccount,
+    GoogleUnlockHelp,
+    XiaomiUnlockQa,
+    XiaomiForgotScreenPassword,
 }
 
 impl OfficialLinkId {
     #[cfg(test)]
-    pub const ALL: [OfficialLinkId; 7] = [
+    pub const ALL: [OfficialLinkId; 10] = [
         OfficialLinkId::PlatformTools,
         OfficialLinkId::OemUsbDrivers,
         OfficialLinkId::GoogleAccountRecovery,
@@ -26,6 +29,9 @@ impl OfficialLinkId {
         OfficialLinkId::AndroidHelp,
         OfficialLinkId::XiaomiAccount,
         OfficialLinkId::SamsungAccount,
+        OfficialLinkId::GoogleUnlockHelp,
+        OfficialLinkId::XiaomiUnlockQa,
+        OfficialLinkId::XiaomiForgotScreenPassword,
     ];
 
     pub fn url(self) -> &'static str {
@@ -39,6 +45,16 @@ impl OfficialLinkId {
             OfficialLinkId::AndroidHelp => "https://support.google.com/android",
             OfficialLinkId::XiaomiAccount => "https://account.xiaomi.com",
             OfficialLinkId::SamsungAccount => "https://account.samsung.com",
+            // PRD v2.3 §17 — rujukan resmi Screen Lock Recovery.
+            OfficialLinkId::GoogleUnlockHelp => {
+                "https://support.google.com/android/answer/7663172?hl=id"
+            }
+            OfficialLinkId::XiaomiUnlockQa => {
+                "https://www.mi.com/global/support/faq/details/KA-07085/"
+            }
+            OfficialLinkId::XiaomiForgotScreenPassword => {
+                "https://www.mi.com/global/support/faq/details/KA-492633/"
+            }
         }
     }
 }

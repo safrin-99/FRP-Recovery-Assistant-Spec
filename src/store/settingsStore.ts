@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
 /**
  * Tema adalah preferensi tampilan per komputer, jadi disimpan di penyimpanan lokal WebView.
- * Pengaturan lain tetap per sesi sampai persistensi SQLite (Milestone 3).
+ * Pengaturan lain tetap per sesi sampai disinkronkan ke `app_settings` Supabase (PRD v2.4 Milestone 4/5).
  */
 export const THEME_STORAGE_KEY = 'frp-recovery.theme'
 

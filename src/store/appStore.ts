@@ -113,6 +113,8 @@ export interface AppState {
   startDiagnosis: () => void
   cancelDiagnosis: () => void
   clearLogs: () => void
+  /** Catat kejadian dari fitur lain (mis. kasus Screen Lock Recovery) ke log sesi aktif. */
+  addLog: (level: LogLevel, category: LogCategory, message: string) => void
   setScreenLocked: (answer: UserAnswer) => void
   setDataImportant: (answer: UserAnswer) => void
   setBackupAvailable: (answer: BackupAnswer) => void
@@ -369,6 +371,7 @@ export const useAppStore = create<AppState>()((set, get) => {
     },
 
     clearLogs: () => set({ logs: [] }),
+    addLog: (level, category, message) => pushLog(makeLog(level, category, message, 'live')),
 
     setScreenLocked: (screenLocked) => set({ screenLocked }),
     setDataImportant: (dataImportant) => set({ dataImportant }),

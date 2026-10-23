@@ -52,7 +52,14 @@ export default tseslint.config(
     rules: { 'no-restricted-imports': 'off' },
   },
   {
-    files: ['e2e/**/*.ts', 'scripts/**/*.mjs', 'vite.config.ts', 'playwright.config.ts', 'eslint.config.js'],
+    files: [
+      'e2e/**/*.ts',
+      'scripts/**/*.mjs',
+      'supabase/tests/**/*.mjs',
+      'vite.config.ts',
+      'playwright.config.ts',
+      'eslint.config.js',
+    ],
     languageOptions: { globals: globals.node },
   },
 )

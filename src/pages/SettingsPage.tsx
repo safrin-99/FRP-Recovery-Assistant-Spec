@@ -20,7 +20,7 @@ const LANGUAGE_OPTIONS = [
 
 const AI_PROVIDER_OPTIONS = [
   { value: 'disabled', label: 'Nonaktif' },
-  { value: 'cloud-byok', label: 'Provider cloud (API key milik Anda)', description: `${NOT_YET} — Milestone 4`, disabled: true },
+  { value: 'cloud-byok', label: 'Provider cloud (API key milik Anda)', description: `${NOT_YET} — Milestone 6`, disabled: true },
   { value: 'local', label: 'Model lokal', description: `${NOT_YET} — fase lanjutan`, disabled: true },
 ]
 
@@ -50,8 +50,8 @@ export function SettingsPage() {
     <div className="flex flex-col gap-4">
       <PageHeader title="Settings" description="Pengaturan aplikasi, privasi, dan AI Assistant." />
       <InlineAlert tone="info" title="Penyimpanan pengaturan">
-        Tema disimpan di komputer ini. Pengaturan lain masih hanya berlaku selama aplikasi berjalan; penyimpanan
-        permanen dijadwalkan pada Milestone 3.
+        Tema disimpan di komputer ini. Pengaturan lain masih hanya berlaku selama aplikasi berjalan; sinkronisasi
+        pengaturan ke akun Supabase belum tersedia.
       </InlineAlert>
 
       <Panel aria-labelledby="demo-title" className="p-5">
@@ -90,9 +90,13 @@ export function SettingsPage() {
           <ReadOnlyField
             label="Android Platform-Tools"
             value="Deteksi otomatis"
-            hint="Dicari di PATH, ANDROID_HOME, Android SDK, dan winget (lihat Tools). Pilih path manual: Milestone 3."
+            hint="Dicari di PATH, ANDROID_HOME, Android SDK, dan winget (lihat Tools). Pilih path manual belum tersedia."
           />
-          <ReadOnlyField label="Data & log" value="Belum disimpan ke disk" hint="Lokasi penyimpanan lokal: Milestone 3." />
+          <ReadOnlyField
+            label="Data & log"
+            value="Belum disimpan ke disk"
+            hint="Log hanya untuk sesi aktif. Catatan tiket disimpan ke Supabase hanya atas tindakan Anda."
+          />
         </div>
       </Panel>
 

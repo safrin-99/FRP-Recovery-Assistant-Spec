@@ -38,7 +38,7 @@ export type Authorization = z.infer<typeof AuthorizationSchema>
 export const LogLevelSchema = z.enum(['info', 'success', 'warning', 'error'])
 export type LogLevel = z.infer<typeof LogLevelSchema>
 
-export const LOG_CATEGORIES = ['Perangkat', 'USB', 'ADB', 'Fastboot', 'Driver', 'Sistem', 'AI'] as const
+export const LOG_CATEGORIES = ['Perangkat', 'USB', 'ADB', 'Fastboot', 'Driver', 'Kasus', 'Sistem', 'AI'] as const
 export type LogCategory = (typeof LOG_CATEGORIES)[number]
 
 /** DiagnosticLog — PRD §11 (detailsRedacted opsional pada M1). */
@@ -55,6 +55,7 @@ export type LogEntry = z.infer<typeof LogEntrySchema>
 
 export type PageId =
   | 'home'
+  | 'screen-lock'
   | 'frp-recovery'
   | 'ai-assistant'
   | 'device-info'
