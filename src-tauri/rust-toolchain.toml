@@ -1,0 +1,6 @@
+[toolchain]
+# Dikunci ke rilis stabil terbaru saat scaffold (PRD §5). Naikkan secara sengaja + uji ulang.
+channel = "1.99.1"
+targets = ["x86_64-pc-windows-msvc"]
+profile = "minimal"
+components = ["clippy", "rustfmt"]

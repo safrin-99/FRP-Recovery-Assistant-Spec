@@ -1,0 +1,129 @@
+@import 'tailwindcss';
+@import './design-tokens.css';
+
+/*
+ * Pemetaan token -> utilitas Tailwind. `inline` agar utilitas merujuk var(--token)
+ * langsung (token tetap satu sumber di design-tokens.css).
+ * Nama radius sengaja berbeda (ui-*) agar tidak berbenturan dengan namespace Tailwind.
+ */
+@theme inline {
+  --color-app: var(--bg-app);
+  --color-titlebar: var(--bg-titlebar);
+  --color-sidebar: var(--bg-sidebar);
+  --color-panel: var(--bg-panel);
+  --color-raised: var(--bg-panel-raised);
+  --color-field: var(--bg-input);
+
+  --color-line: var(--border-subtle);
+  --color-line-default: var(--border-default);
+  --color-line-strong: var(--border-strong);
+
+  --color-fg: var(--text-primary);
+  --color-fg-2: var(--text-secondary);
+  --color-fg-muted: var(--text-muted);
+
+  --color-blue: var(--accent-blue);
+  --color-blue-hover: var(--accent-blue-hover);
+  --color-cyan: var(--accent-cyan);
+  --color-cyan-soft: var(--accent-cyan-soft);
+  --color-success: var(--status-success);
+  --color-warning: var(--status-warning);
+  --color-danger: var(--status-danger);
+  --color-success-soft: var(--status-success-soft);
+  --color-warning-soft: var(--status-warning-soft);
+  --color-danger-soft: var(--status-danger-soft);
+  --color-info-soft: var(--status-info-soft);
+
+  --radius-ui-sm: var(--radius-sm);
+  --radius-ui-md: var(--radius-md);
+  --radius-ui-lg: var(--radius-lg);
+  --radius-ui-xl: var(--radius-xl);
+
+  --font-sans: var(--font-stack);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    font-family: var(--font-stack);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-default) transparent;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--accent-blue) 55%, transparent);
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+}
+
+/* Focus ring jelas (cyan/blue) pada semua kontrol interaktif. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility animate-popover {
+  animation: popover-in var(--duration-base) var(--ease-standard);
+}
+
+@utility animate-overlay {
+  animation: overlay-in var(--duration-base) var(--ease-standard);
+}
+
+/* Hormati prefers-reduced-motion (DESIGN.md §11). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

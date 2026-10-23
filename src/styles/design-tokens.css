@@ -1,0 +1,71 @@
+/*
+ * Design tokens — sumber warna/radius/spacing utama (DESIGN.md §3).
+ * Nilai inti disalin persis dari DESIGN.md. Token turunan (soft/hover/z-index/motion)
+ * didefinisikan di sini juga agar komponen tidak menyebar hex langsung.
+ */
+:root {
+  color-scheme: dark;
+
+  --bg-app: #080f19;
+  --bg-titlebar: #0c1521;
+  --bg-sidebar: #0d1825;
+  --bg-panel: #111c2a;
+  --bg-panel-raised: #152233;
+  --bg-input: #0b1420;
+
+  --border-subtle: #223246;
+  --border-default: #34475d;
+  --border-strong: #42617f;
+
+  --text-primary: #f3f7ff;
+  --text-secondary: #b8c9e2;
+  --text-muted: #8598b2;
+
+  --accent-blue: #1264f5;
+  --accent-blue-hover: #2879ff;
+  --accent-cyan: #10c8f5;
+  --accent-cyan-soft: #174a73;
+  --status-success: #35e6a0;
+  --status-warning: #ffbd59;
+  --status-danger: #ff5148;
+
+  --gradient-primary: linear-gradient(105deg, #11c6ee 0%, #1689ff 48%, #1558f5 100%);
+  --gradient-selected: linear-gradient(145deg, #174c91 0%, #1259ca 100%);
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 13px;
+  --radius-xl: 16px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Turunan (bukan palette baru): tint status dari token status yang sama. */
+  --status-success-soft: color-mix(in srgb, var(--status-success) 14%, transparent);
+  --status-warning-soft: color-mix(in srgb, var(--status-warning) 14%, transparent);
+  --status-danger-soft: color-mix(in srgb, var(--status-danger) 14%, transparent);
+  --status-info-soft: color-mix(in srgb, var(--accent-cyan) 14%, transparent);
+
+  /* Z-index terstandar (DESIGN.md §16). */
+  --z-sidebar: 10;
+  --z-titlebar: 20;
+  --z-dialog-overlay: 60;
+  --z-dialog: 61;
+  --z-popover: 70;
+
+  --shadow-popover: 0 10px 28px -8px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.35);
+  --focus-ring: 0 0 0 2px var(--bg-app), 0 0 0 4px var(--accent-cyan);
+
+  /* Motion (DESIGN.md §11: 120–220 ms). */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Font lokal (bundel @fontsource-variable/inter); tanpa Google Fonts di runtime. */
+  --font-stack: 'Inter Variable', 'Segoe UI', Arial, sans-serif;
+}

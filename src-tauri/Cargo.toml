@@ -1,0 +1,25 @@
+[package]
+name = "frp-recovery-assistant"
+version = "0.1.0"
+description = "FRP Recovery Assistant — Android Recovery & Diagnostics Suite"
+edition = "2021"
+rust-version = "1.99"
+publish = false
+
+[lib]
+# Nama berbeda dari bin untuk menghindari bentrok nama artefak di Windows (konvensi template Tauri 2).
+name = "frp_recovery_assistant_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+# Milestone 1: hanya shell jendela. Tidak ada plugin shell/fs/http.
+tauri = { version = "2.12.5", features = [] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
