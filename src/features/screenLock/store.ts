@@ -10,6 +10,7 @@ import {
 import { useAppStore } from '@/store/appStore'
 import { useCloudStore } from '@/store/cloudStore'
 import type { BrandId, DeviceSnapshot } from '@/types/domain'
+import { deviceEvidenceFrom } from './capabilities'
 import {
   allowedOutcomes,
   canRequestConsent,
@@ -31,6 +32,8 @@ interface ScreenLockState {
   startCase: (brand: BrandId, device: DeviceSnapshot | null) => void
   update: (patch: Partial<Omit<RecoveryCase, 'id' | 'ticketCode' | 'createdAt'>>) => void
   updatePreservation: (patch: Partial<PreservationChecklist>) => void
+  /** Catat bukti dari perangkat yang baru terdeteksi (live, bukan demo) ke tiket. */
+  captureDetectedDevice: () => void
   updatePostReset: (patch: Partial<PostResetChecklist>) => void
   grantConsent: () => void
   declineConsent: () => void
@@ -93,6 +96,21 @@ export const useScreenLockStore = create<ScreenLockState>()((set, get) => {
     updatePreservation: (patch) => {
       const c = get().current
       if (c) change({ ...c, preservation: { ...c.preservation, ...patch } })
+    },
+
+    captureDetectedDevice: () => {
+      const c = get().current
+      if (!c) return
+      const evidence = deviceEvidenceFrom(useAppStore.getState().liveDevice)
+      if (!evidence) return
+      // Lewat `update` agar model terdeteksi memicu aturan pembatalan consent bila identitas berganti.
+      const detectedModel = useAppStore.getState().liveDevice?.model ?? evidence.modelCode
+      get().update(
+        detectedModel && detectedModel !== c.model
+          ? { deviceEvidence: evidence, model: detectedModel, modelSource: 'detected' }
+          : { deviceEvidence: evidence },
+      )
+      log('info', `Bukti perangkat ${evidence.sessionId} (${evidence.transport}) dicatat untuk tiket ${c.ticketCode}.`)
     },
 
     updatePostReset: (patch) => {

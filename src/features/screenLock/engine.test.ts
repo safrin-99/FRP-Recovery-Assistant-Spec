@@ -172,6 +172,7 @@ describe('Screen Lock Recovery engine (per-ticket customer choice)', () => {
       'Masalah: Lupa PIN/pola/sandi layar',
       'Preferensi data: Setuju hapus data',
       'Backup: Sebagian · Akses: Layar terkunci',
+      'Identitas perangkat: belum terverifikasi dari deteksi',
       'Kesiapan akun: Siap — akun Xiaomi',
       'Jalur: Guided Factory Reset · Data Preservation: Belum diketahui',
       `Consent reset: Disetujui pelanggan (${NOW.toISOString()})`,

@@ -244,6 +244,9 @@ test.describe('Screen Lock Recovery', () => {
     const reset = page.getByRole('region', { name: /Jalur A/ })
     await expect(reset.getByText('Panduan resmi Xiaomi', { exact: true })).toBeVisible()
     await expect(reset.getByText('Model belum terverifikasi').first()).toBeVisible()
+    // Operasi reset jujur: panduan di perangkat, bukan dijalankan aplikasi dari komputer.
+    await expect(reset.getByText(/tidak mengirim perintah wipe\/flash\/unlock dari komputer/i)).toBeVisible()
+    await expect(reset.getByText('Identitas perangkat dari deteksi nyata')).toBeVisible()
     await expect(page.locator('main').getByRole('button', { name: /wipe|flash|unlock|erase|bypass/i })).toHaveCount(0)
     await expect(page.locator('body')).not.toContainText(/bypass/i)
     await reset.getByText('Panduan resmi Xiaomi', { exact: true }).scrollIntoViewIfNeeded()

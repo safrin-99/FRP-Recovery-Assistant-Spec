@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { BrandId } from '@/types/domain'
+import type { Authorization, BrandId, DeviceMode, Transport } from '@/types/domain'
 
 /**
  * Model kasus Screen Lock Recovery (PRD v2.4 §7.2, DESIGN.md §19). Nilai enum yang disimpan
@@ -88,6 +88,20 @@ export interface PreservationChecklist {
   deviceDetectionRun: boolean
 }
 
+/**
+ * Bukti perangkat dari deteksi nyata (bukan demo). Dicatat pada tiket agar identitas perangkat
+ * untuk jalur reset berasal dari hasil deteksi, bukan data mock (TASK-02 §3.1-3.2). Tidak memuat
+ * serial/IMEI: hanya ID sesi internal (`device-N`) dan status koneksi.
+ */
+export interface DeviceEvidence {
+  sessionId: string
+  transport: Transport
+  authorization: Authorization
+  mode: DeviceMode | null
+  modelCode: string | null
+  detectedAt: string
+}
+
 /** Checklist pasca-reset (DESIGN.md §19). */
 export interface PostResetChecklist {
   setupCompleted: boolean
@@ -114,6 +128,8 @@ export interface RecoveryCase {
   accountReadiness: AccountReadiness | null
   ownerAuthorizationConfirmed: boolean
   ownerAuthorizedAt: string | null
+  /** Bukti dari deteksi nyata; `null` bila perangkat belum terdeteksi (mis. layar terkunci total). */
+  deviceEvidence: DeviceEvidence | null
   preservation: PreservationChecklist
   preservationResult: PreservationResult
   /** Pelanggan memahami data lokal akan dihapus. */

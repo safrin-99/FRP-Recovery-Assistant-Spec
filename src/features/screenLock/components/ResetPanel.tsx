@@ -20,6 +20,7 @@ import {
   resetGateBlockers,
   type PreflightItem,
 } from '../engine'
+import { resolveCapability } from '../capabilities'
 import { resolveResetGuide } from '../guide'
 import { ACCOUNT_READINESS_LABELS, RESET_CONSENT_TEXT_VERSION, type PostResetChecklist, type RecoveryCase } from '../model'
 import { useScreenLockStore } from '../store'
@@ -68,6 +69,7 @@ export function ResetPanel({ c }: { c: RecoveryCase }) {
   const accepted = c.resetConsentStatus === 'accepted'
   const primary = primaryPath(c) === 'guided_factory_reset'
   const guide = accepted ? resolveResetGuide(c) : null
+  const capability = resolveCapability(c)
   const accountWarning = c.accountReadiness === 'unknown' || c.accountReadiness === 'recovery_needed'
 
   return (
@@ -185,6 +187,9 @@ export function ResetPanel({ c }: { c: RecoveryCase }) {
           <InlineAlert tone="warning" title="Persetujuan reset dicatat untuk tiket ini">
             {c.resetConsentAt ? `Disetujui ${new Date(c.resetConsentAt).toLocaleString('id-ID')} · teks ${c.consentTextVersion}. ` : null}
             Ikuti panduan resmi langsung pada perangkat. Mengubah data tiket akan membatalkan persetujuan ini.
+          </InlineAlert>
+          <InlineAlert tone="info" title="Cara operasi dan verifikasi">
+            {capability.note} {capability.verifyBy}
           </InlineAlert>
           {guide.warning ? (
             <InlineAlert tone="warning" title={guide.brandSpecific ? 'Model belum terverifikasi' : 'Panduan umum'}>

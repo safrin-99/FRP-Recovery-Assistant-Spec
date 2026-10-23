@@ -30,9 +30,12 @@ export function PreservationPanel({ c }: { c: RecoveryCase }) {
   const reviewed = preservationReviewed(c)
   const primary = primaryPath(c) === 'data_preservation'
 
+  const captureDetectedDevice = useScreenLockStore((s) => s.captureDetectedDevice)
   const runDetection = async () => {
     await autoDetect()
     updatePreservation({ deviceDetectionRun: true })
+    // Catat bukti perangkat nyata ke tiket (demo diabaikan di dalam store).
+    captureDetectedDevice()
   }
 
   const links =

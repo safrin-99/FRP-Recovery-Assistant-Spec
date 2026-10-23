@@ -1,5 +1,6 @@
 import { BRAND_LABELS } from '@/data/catalog'
 import type { BrandId, DeviceSnapshot } from '@/types/domain'
+import { deviceEvidenceFrom } from './capabilities'
 import {
   ACCESS_STATE_LABELS,
   ACCOUNT_READINESS_LABELS,
@@ -46,6 +47,7 @@ export function newTicketCode(now: Date): string {
  * dan kesiapan akun sengaja kosong: consent tidak pernah diwariskan dari tiket lain.
  */
 export function createCase(now: Date, brand: BrandId, device: DeviceSnapshot | null): RecoveryCase {
+  const evidence = deviceEvidenceFrom(device)
   const detected = device?.source === 'live' ? (device.model ?? device.modelCode) : null
   return {
     id: crypto.randomUUID(),
@@ -60,6 +62,7 @@ export function createCase(now: Date, brand: BrandId, device: DeviceSnapshot | n
     accountReadiness: null,
     ownerAuthorizationConfirmed: false,
     ownerAuthorizedAt: null,
+    deviceEvidence: evidence,
     preservation: { officialAccessChecked: false, deviceDetectionRun: false },
     preservationResult: 'unknown',
     dataLossExplained: false,
@@ -159,7 +162,7 @@ export function resetGateBlockers(c: RecoveryCase): string[] {
 }
 
 export interface PreflightItem {
-  id: 'model' | 'backup' | 'account' | 'data-loss' | 'account-verification'
+  id: 'identity' | 'model' | 'backup' | 'account' | 'data-loss' | 'account-verification'
   label: string
   status: 'ok' | 'warning' | 'blocked'
   detail: string
@@ -172,7 +175,18 @@ export function preflight(c: RecoveryCase): PreflightItem[] {
   const modelKnown = c.modelSource !== 'unknown' && Boolean(c.model)
   const backupReviewed = ['available_verified', 'partial', 'none'].includes(c.backupStatus)
   const accountReady = c.accountReadiness !== null && ['google_ready', 'xiaomi_ready', 'both_ready', 'not_applicable'].includes(c.accountReadiness)
+  const ev = c.deviceEvidence
   return [
+    {
+      // Warning (bukan blocked): layar terkunci total sering tidak dapat dideteksi sama sekali;
+      // namun identitas tidak boleh diklaim terverifikasi tanpa bukti deteksi nyata.
+      id: 'identity',
+      label: 'Identitas perangkat dari deteksi nyata',
+      status: ev ? 'ok' : 'warning',
+      detail: ev
+        ? `Terdeteksi (${ev.sessionId}, ${ev.transport}${ev.mode ? `, ${ev.mode}` : ''}). Jalankan ulang deteksi bila perangkat berganti.`
+        : 'Belum ada bukti deteksi nyata untuk tiket ini. Identitas memakai input teknisi; jangan mengklaim perangkat terverifikasi.',
+    },
     {
       id: 'model',
       label: 'Merek/model perangkat',
@@ -297,6 +311,11 @@ export function caseSummary(c: RecoveryCase): string {
     `Masalah: ${c.issueType ? ISSUE_TYPE_LABELS[c.issueType] : 'Belum dipilih'}`,
     `Preferensi data: ${c.dataPreference ? DATA_PREFERENCE_LABELS[c.dataPreference] : 'Belum ditanyakan'}`,
     `Backup: ${BACKUP_STATUS_LABELS[c.backupStatus]} · Akses: ${ACCESS_STATE_LABELS[c.accessState]}`,
+    `Identitas perangkat: ${
+      c.deviceEvidence
+        ? `terdeteksi (${c.deviceEvidence.sessionId}, ${c.deviceEvidence.transport}${c.deviceEvidence.mode ? `, ${c.deviceEvidence.mode}` : ''})`
+        : 'belum terverifikasi dari deteksi'
+    }`,
     `Kesiapan akun: ${c.accountReadiness ? ACCOUNT_READINESS_LABELS[c.accountReadiness] : 'Belum ditanyakan'}`,
     `Jalur: ${CHOSEN_PATH_LABELS[chosenPath(c)]} · Data Preservation: ${PRESERVATION_RESULT_LABELS[c.preservationResult]}`,
     `Consent reset: ${consent}`,
