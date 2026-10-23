@@ -67,9 +67,14 @@ export function HomePage() {
             <h3 id="brand-title" className="text-lg font-semibold text-fg">
               Pilih Brand Perangkat
             </h3>
-            <div role="group" aria-labelledby="brand-title" className="flex flex-col gap-2.5">
+            {/* Lebar penuh: dua baris seperti referensi (5 + 6). Panel sempit: grid kolom seragam. */}
+            <div
+              role="group"
+              aria-labelledby="brand-title"
+              className="grid grid-cols-[repeat(auto-fill,minmax(124px,1fr))] gap-2 @[760px]:flex @[760px]:flex-col @[760px]:gap-2.5"
+            >
               {BRAND_ROWS.map((row, index) => (
-                <div key={index} className="flex flex-wrap gap-2">
+                <div key={index} className="contents @[760px]:flex @[760px]:flex-wrap @[760px]:gap-2">
                   {row.map((item) => (
                     <BrandButton
                       key={item.id}

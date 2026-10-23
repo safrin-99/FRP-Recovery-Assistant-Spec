@@ -207,6 +207,30 @@ test.describe('1200×760 (ukuran minimum nyaman)', () => {
   })
 })
 
+test.describe('1280×672 (laptop 1920×1080 @150%, jendela Tauri ter-maximize)', () => {
+  test.use({ viewport: { width: 1280, height: 672 } })
+
+  test('brand buttons form an even grid without orphan rows', async ({ page }) => {
+    expect(await horizontalOverflow(page)).toBe(false)
+    const buttons = page.getByRole('group', { name: 'Pilih Brand Perangkat' }).getByRole('button')
+    await expect(buttons).toHaveCount(11)
+    const boxes = await buttons.evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect()
+        return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width) }
+      }),
+    )
+    // Grid seragam: semua tombol selebar sama dan baris pertama terisi penuh.
+    const widths = new Set(boxes.map((b) => b.w))
+    expect(widths.size).toBe(1)
+    const firstRowY = boxes[0]!.y
+    const perRow = boxes.filter((b) => b.y === firstRowY).length
+    expect(perRow).toBeGreaterThanOrEqual(3)
+    await page.getByRole('heading', { name: 'Pilih Brand Perangkat' }).scrollIntoViewIfNeeded()
+    await page.screenshot({ path: `${SHOTS}/home-brands-1280x672.png` })
+  })
+})
+
 test.describe('1100×760 (di bawah lebar desktop)', () => {
   test.use({ viewport: { width: 1100, height: 760 } })
 

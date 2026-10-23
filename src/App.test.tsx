@@ -91,6 +91,23 @@ describe('App shell', () => {
     expect(brands.getByRole('button', { name: /Motorola/ })).toHaveAttribute('aria-pressed', 'true')
   })
 
+  it('renders a logo or monogram for every brand while keeping the brand name accessible', () => {
+    render(<App />)
+    const brands = within(screen.getByRole('group', { name: 'Pilih Brand Perangkat' }))
+    for (const label of ['Samsung', 'Xiaomi', 'OPPO', 'vivo', 'realme', 'Infinix', 'TECNO', 'HUAWEI', 'Motorola', 'ASUS', 'Other']) {
+      expect(brands.getByRole('button', { name: label })).toBeInTheDocument()
+    }
+    // Wordmark (Simple Icons) menggantikan teks terlihat; nama tetap dari teks sr-only.
+    const samsung = brands.getByRole('button', { name: 'Samsung' })
+    expect(samsung.querySelector('svg path')).not.toBeNull()
+    expect(within(samsung).getByText('Samsung')).toHaveClass('sr-only')
+    // Mark berwarna merek di samping teks.
+    expect(brands.getByRole('button', { name: 'HUAWEI' }).querySelector('svg')).toHaveAttribute('fill', '#FF0000')
+    // Tanpa aset logo berlisensi: monogram netral.
+    expect(brands.getByRole('button', { name: 'realme' })).toHaveTextContent('Rrealme')
+    expect(brands.getByRole('button', { name: 'TECNO' }).querySelector('svg path')).toBeNull()
+  })
+
   it('requires confirmation before clearing logs', async () => {
     const user = userEvent.setup()
     render(<App />)

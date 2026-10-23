@@ -77,6 +77,15 @@ npm run tauri dev    # jendela desktop — butuh Rust + MSVC
 Screenshot e2e (1536×1024, 1200×760, 1100×760, 1024×640) ditulis ke `e2e/__screenshots__/actual/`
 (diabaikan git) untuk dibandingkan manual dengan `reference-ui.png`. Baseline regresi piksel belum ditetapkan.
 
+### Aset pihak ketiga
+
+- Logo brand Samsung, Xiaomi, OPPO, vivo, HUAWEI, Motorola, dan ASUS di `src/data/brandIcons.ts` berasal dari
+  [Simple Icons](https://simpleicons.org) v16.35.0 (data SVG berlisensi CC0-1.0). Merek dan logo tetap milik
+  pemiliknya masing-masing dan dipakai hanya untuk menunjukkan merek perangkat; periksa pedoman merek masing-masing
+  sebelum rilis komersial.
+- realme, Infinix, dan TECNO tidak tersedia di Simple Icons, sehingga memakai monogram huruf sampai ada aset resmi berlisensi.
+- Font Inter Variable dibundel lewat `@fontsource-variable/inter` (SIL Open Font License).
+
 ### Troubleshooting ADB (persiapan Milestone 2)
 
 - `adb` tidak dikenali: pasang Platform-Tools resmi dan atur lokasinya (pengaturan path menyusul di Milestone 2–3).
