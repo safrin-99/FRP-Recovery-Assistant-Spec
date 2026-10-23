@@ -1,6 +1,6 @@
 # CLAUDE.md — Aturan Implementasi FRP Recovery Assistant
 
-> Versi dokumen: 2.0 — 23 Oktober 2026. Dokumen ini ditujukan khusus untuk Claude Code/Claude saat membangun aplikasi. Baca bersama `PRD.md`, `DESIGN.md`, dan `reference-ui.png` sebelum mengubah kode.
+> Versi dokumen: 2.1 — 23 Oktober 2026 (menambahkan aturan Supabase hybrid opsional). Dokumen ini ditujukan khusus untuk Claude Code/Claude saat membangun aplikasi. Baca bersama `PRD.md`, `DESIGN.md`, dan `reference-ui.png` sebelum mengubah kode.
 
 ## Urutan acuan wajib
 
@@ -31,7 +31,8 @@ Jika ada konflik antara mockup lama dengan PRD/DESIGN, ikuti PRD/DESIGN. Jangan 
 - Validation: Zod.
 - Native/service layer: Rust.
 - Device tools: Android SDK Platform-Tools resmi (ADB/Fastboot), dengan command allowlist.
-- Local data: SQLite.
+- Local data: SQLite (sumber kebenaran, wajib bekerja offline).
+- Cloud opsional: Supabase model hybrid — Auth, Postgres + RLS, Edge Functions (lihat "Aturan Supabase" dan `PRD.md` §6.1).
 - Tests: Vitest, React Testing Library, Playwright jika ada konfigurasi yang sesuai.
 
 Jangan melakukan upgrade major dependency tanpa kebutuhan, review kompatibilitas, dan seluruh tes ulang. Ikuti package manager yang ditetapkan lockfile repo; jangan membuat lockfile kedua.
@@ -69,6 +70,20 @@ Jangan melakukan upgrade major dependency tanpa kebutuhan, review kompatibilitas
 - MVP tidak melakukan factory reset, unlock bootloader, flashing, wipe data, atau FRP bypass. Halaman tersebut hanya menjelaskan risiko dan panduan produsen resmi.
 - Jika kondisi layar terkunci dan backup belum diketahui, prioritaskan `Data Preservation Mode`: jangan sarankan reset/flash sebagai langkah awal; arahkan pada pemeriksaan backup dan konsultasi resmi.
 - Tampilkan `Tidak dapat diverifikasi` jika status perangkat tidak tersedia. Jangan menebak status FRP atau keberhasilan.
+
+## Aturan Supabase (hybrid, opsional)
+
+- Pakai project Supabase **khusus** aplikasi ini. Jangan membaca, mengubah, atau menjalankan migrasi pada project lain di akun pemilik (mis. project "SIAK-Cetak KTP-el").
+- Membuat project Supabase atau mengubah paket berbayar memerlukan konfirmasi biaya dan persetujuan eksplisit pemilik proyek.
+- Local-first: SQLite tetap sumber kebenaran. Login, jaringan, dan Supabase tidak boleh menjadi syarat membuka aplikasi, mendeteksi perangkat, atau menyimpan riwayat lokal. Error/offline Supabase diantrekan, tidak memblokir.
+- Default tidak login dan sinkron nonaktif. Sinkron pertama memerlukan consent dengan pratinjau kategori data; sediakan hentikan sinkron, logout, dan hapus data cloud.
+- Aplikasi hanya boleh membawa URL project dan publishable/anon key. `service_role`/secret key tidak pernah masuk frontend, Rust binary, repo, installer, `.env` yang di-commit, atau log; simpan di Supabase secrets/CI.
+- RLS wajib aktif di setiap tabel sejak migrasi pertama, berbasis `auth.uid()` dan keanggotaan tim. Setiap tabel baru wajib disertai tes RLS (akses lintas pengguna/tim ditolak).
+- Hanya sinkron data tersanitasi. Dilarang mengunggah serial, IMEI, path pengguna, log mentah, PIN/pola, kata sandi, OTP, atau token akun perangkat.
+- Sesi Auth disimpan di penyimpanan kredensial OS, bukan localStorage polos.
+- Skema hanya lewat file migrasi di `supabase/migrations` yang di-commit; jangan mengubah skema manual di dashboard. Migrasi destruktif butuh persetujuan pemilik proyek.
+- Edge Function AI: verifikasi JWT, rate limit, batas ukuran input/output, tanpa logging konten sensitif, dan tetap mematuhi seluruh aturan AI di atas.
+- Tambahkan domain project Supabase ke CSP `connect-src` hanya saat fitur cloud diimplementasikan; jangan membuka `connect-src` secara luas.
 
 ## Standar visual
 

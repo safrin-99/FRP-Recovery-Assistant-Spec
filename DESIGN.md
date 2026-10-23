@@ -1,6 +1,6 @@
 # DESIGN.md — FRP Recovery Assistant / Android Recovery & Diagnostics Suite
 
-> **Versi revisi:** 2.0 — 23 Oktober 2026. Dokumen ini mengunci arah visual, states, dan perilaku komponen. Screenshot [`reference-ui.png`](./reference-ui.png) adalah referensi komposisi, proporsi, dan palette. Teks lama pada screenshot yang menyiratkan bypass tidak mengesampingkan label aman dan fitur yang ditetapkan `PRD.md`. Jangan mengganti UI dengan dashboard template generik atau mengubah desain utama tanpa persetujuan.
+> **Versi revisi:** 2.1 — 23 Oktober 2026 (menambahkan §18 Akun & Sinkronisasi untuk Supabase opsional). Dokumen ini mengunci arah visual, states, dan perilaku komponen. Screenshot [`reference-ui.png`](./reference-ui.png) adalah referensi komposisi, proporsi, dan palette. Teks lama pada screenshot yang menyiratkan bypass tidak mengesampingkan label aman dan fitur yang ditetapkan `PRD.md`. Jangan mengganti UI dengan dashboard template generik atau mengubah desain utama tanpa persetujuan.
 
 ## 1. Target Visual
 
@@ -397,3 +397,25 @@ Sebelum menyatakan UI selesai, bandingkan screenshot build dengan `reference-ui.
 ### States required for QA
 
 - Empty conversation, prompt suggestions, processing, response success, network timeout, quota/provider error, invalid configuration, consent canceled, sensitive data redacted, retry, history cleared, and AI disabled.
+
+## 18. Akun & Sinkronisasi (Supabase, opsional)
+
+### Lokasi
+
+- Bagian `Akun & Sinkronisasi` di halaman Settings, memakai panel, tipografi, dan komponen yang sama (`AppSwitch`, `AppSelect`, `ConfirmDialog`, `InlineAlert`). Jangan menambah item sidebar baru dan jangan mengubah komposisi utama.
+- Status sinkron ringkas boleh tampil sebagai teks + ikon kecil di Settings dan halaman Logs; jangan memakai warna hijau `Device Ready` untuk status cloud.
+- Laporan yang dibagikan ke tim diberi label teks `Dibagikan ke tim`, bukan hanya ikon/warna.
+
+### States wajib
+
+- `Tidak masuk` (default) — fitur lokal penuh, tombol `Masuk` jelas.
+- `Masuk…`, `Masuk gagal` (pesan spesifik + `Coba lagi`).
+- `Sinkron nonaktif` (sudah login, belum consent) — tombol `Aktifkan sinkron` membuka dialog consent dengan pratinjau kategori data, tujuan, dan cara menonaktifkan.
+- `Tersinkron` (waktu terakhir sinkron), `Menunggu sinkron` (antrean offline + jumlah item), `Offline`, `Error sinkron` (pesan + `Coba lagi`).
+- `Consent dibatalkan`, `Keluar akun`, `Hapus data cloud` (lewat `ConfirmDialog` yang menjelaskan dampaknya).
+
+### Aturan visual
+
+- Ikuti token yang ada; tidak ada palette baru untuk cloud. Gunakan `--accent-cyan` untuk info sinkron, `--status-warning` untuk antrean/offline, `--status-danger` untuk error.
+- Form login tidak boleh meminta kredensial akun Google/produsen perangkat; hanya akun aplikasi (Supabase Auth).
+- Status cloud tidak boleh disampaikan hanya dengan warna; sertakan teks.

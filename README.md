@@ -20,6 +20,7 @@ Paket spesifikasi untuk membangun aplikasi desktop Windows melalui Claude Code.
 ## Keputusan penting yang sudah dikunci
 
 - Stack target: Tauri 2, React, TypeScript, Vite, Tailwind CSS 4, Rust, SQLite, Android Platform-Tools.
+- Supabase dipakai sebagai cloud **opsional** model hybrid (v2.1): akun teknisi, sinkron/backup riwayat tersanitasi, laporan bersama tim, dan backend AI tepercaya lewat Edge Functions. SQLite tetap sumber kebenaran; aplikasi berfungsi penuh tanpa login/internet. Lihat `PRD.md` §6.1.
 - Produk adalah diagnosis dan pendamping pemulihan resmi, bukan tool exploit atau bypass FRP otomatis.
 - AI runtime bersifat opsional/provider-agnostic dan tidak mengendalikan perangkat secara otonom.
 - Seluruh dropdown UI adalah custom-styled dan tidak menampilkan popup native browser.
@@ -43,6 +44,8 @@ Paket spesifikasi untuk membangun aplikasi desktop Windows melalui Claude Code.
 | Driver check, Platform-Tools check | **Belum** — Milestone 2 |
 | SQLite, riwayat log, ekspor, pengaturan permanen | **Belum** — Milestone 3 (pengaturan hanya berlaku per sesi) |
 | AI Assistant (provider, consent, redaksi) | **Belum** — Milestone 4; status `Belum dikonfigurasi` |
+| Supabase (Auth, sinkron/backup, laporan tim) | **Belum** — Milestone 3; project Supabase khusus belum dibuat |
+| Backend AI via Supabase Edge Functions | **Belum** — Milestone 4 |
 | Shell Tauri (`src-tauri/`) | Kerangka ada, **belum pernah dikompilasi** (Rust/MSVC belum terpasang) |
 | Installer Windows | **Belum** — Milestone 5 |
 

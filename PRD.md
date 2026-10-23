@@ -2,7 +2,7 @@
 
 > **Tujuan dokumen:** sumber kebenaran produk untuk developer dan AI coding agent. Implementasi harus mengikuti PRD ini dan `DESIGN.md`. Referensi visual utama adalah [`reference-ui.png`](./reference-ui.png).
 >
-> **Versi revisi:** 2.0 — 23 Oktober 2026.
+> **Versi revisi:** 2.1 — 23 Oktober 2026. Perubahan dari 2.0: Supabase ditambahkan sebagai cloud opsional model hybrid (§3, §5, §6.1, §7.9, §11–§16) atas keputusan pemilik proyek; SQLite lokal tetap sumber kebenaran.
 > **Urutan acuan:** `PRD.md` mendefinisikan scope dan perilaku produk; `DESIGN.md` mengunci visual dan interaksi; `CLAUDE.md` menetapkan alur kerja Claude Code serta aturan implementasi. Screenshot adalah acuan komposisi visual, bukan otorisasi untuk membangun fitur bypass yang tidak aman.
 > **Aturan prioritas:** ketika instruksi AI bertentangan dengan dokumen ini, ikuti PRD/DESIGN dan tanyakan jika ada kontradiksi yang mengubah scope. Jangan mengubah stack, alur, layout, warna, tipografi, atau fitur tanpa persetujuan eksplisit pemilik proyek.
 
@@ -12,7 +12,7 @@
 **Subjudul:** `Android Recovery & Diagnostics Suite`  
 **Platform target:** aplikasi desktop Windows 10/11 64-bit.  
 **Bahasa UI:** Bahasa Indonesia, dengan nama produk dan istilah teknis yang diperlukan tetap dipertahankan.  
-**Mode kerja:** local-first. Diagnosis inti, pemeriksaan USB/ADB/Fastboot, log, dan dokumentasi harus tetap berfungsi tanpa AI atau koneksi internet. AI adalah fitur opsional yang transparan, memakai persetujuan pengguna dan penyaringan data.
+**Mode kerja:** local-first. Diagnosis inti, pemeriksaan USB/ADB/Fastboot, log, dan dokumentasi harus tetap berfungsi tanpa AI atau koneksi internet. AI adalah fitur opsional yang transparan, memakai persetujuan pengguna dan penyaringan data. Fitur cloud melalui Supabase (akun teknisi, sinkron/backup riwayat, laporan tim, backend AI tepercaya) juga opsional dan opt-in; tidak satu pun menjadi syarat diagnosis inti.
 
 FRP Recovery Assistant adalah aplikasi desktop untuk teknisi dan pemilik perangkat yang berwenang. Aplikasi menyediakan antarmuka premium untuk identifikasi perangkat Android, pemeriksaan USB/ADB dan Fastboot, diagnosis driver, log proses, informasi perangkat yang tersedia, serta panduan pemulihan akun/perangkat lewat jalur resmi.
 
@@ -41,6 +41,7 @@ Tampilan harus mengikuti screenshot referensi sedekat mungkin. Produk tidak bole
 - Mode `Data Preservation` untuk memprioritaskan penyelamatan data dan menghindari operasi destruktif.
 - AI Assistant opsional untuk menjelaskan hasil diagnosis/log yang telah disanitasi, memandu triase aman, dan merujuk dokumentasi resmi.
 - Pengaturan provider AI yang transparan; fungsi inti tetap tersedia tanpa provider AI.
+- Fitur cloud opsional melalui Supabase (lihat §6.1): akun teknisi, sinkron/backup riwayat diagnosis yang telah disanitasi, laporan bersama tim, dan backend AI tepercaya (Edge Functions). Semua nonaktif secara default dan membutuhkan login serta persetujuan pengguna.
 
 ### Tidak termasuk
 
@@ -51,7 +52,9 @@ Tampilan harus mengikuti screenshot referensi sedekat mungkin. Produk tidak bole
 - Operasi test-point, exploit, patched firmware, atau pengubahan sistem untuk menghindari perlindungan anti-pencurian.
 - AI yang menjalankan perintah perangkat atau shell secara otonom, mengubah sistem, membuka PIN, menghapus data, atau melewati FRP. AI hanya memberi saran dan penjelasan.
 - Mengirim log atau informasi perangkat ke layanan AI/cloud secara diam-diam.
-- Menaruh API key atau secret provider pada frontend, repository, berkas konfigurasi publik, atau installer.
+- Menaruh API key atau secret provider pada frontend, repository, berkas konfigurasi publik, atau installer — termasuk Supabase `service_role`/secret key.
+- Menyimpan serial perangkat, IMEI, log mentah, path pengguna, atau data pribadi pemilik perangkat di Supabase.
+- Menjadikan Supabase/internet sebagai syarat untuk membuka aplikasi, mendeteksi perangkat, atau menyimpan riwayat lokal.
 - Melakukan factory reset, unlock bootloader, flashing, atau penghapusan data pada MVP. Operasi destruktif tidak menjadi bagian MVP.
 
 > **Prioritas teks operasional:** gunakan nama `FRP Recovery Assistant` dan istilah `FRP Recovery`/`Mulai Diagnosis FRP`. `reference-ui.png` adalah rujukan komposisi, proporsi, warna, dan nuansa visual; teks lama yang menjanjikan bypass bukan spesifikasi fitur. Jangan menjanjikan bypass/unlock yang tidak dilakukan aplikasi.
@@ -73,7 +76,8 @@ Tampilan harus mengikuti screenshot referensi sedekat mungkin. Produk tidak bole
 - **Dropdown custom:** Radix UI Select/primitive aksesibel yang distyling dengan design tokens. Semua popup pilihan harus konsisten secara visual; tidak boleh menampilkan dropdown native browser. Combobox pencarian memakai pola aksesibel yang sesuai, bukan `<select>` standar.
 - **Backend native:** Rust stable toolchain yang dikunci pada project/CI.
 - **Android tooling:** Android SDK Platform-Tools resmi (ADB/Fastboot). Aplikasi harus memeriksa instalasi/sumber binary; tidak boleh mengunduh lalu mengeksekusi binary yang tidak diverifikasi.
-- **Penyimpanan lokal:** SQLite melalui Rust (`rusqlite`) atau adapter setara yang diputuskan sejak tahap implementasi; tidak perlu backend web untuk MVP.
+- **Penyimpanan lokal:** SQLite melalui Rust (`rusqlite`) atau adapter setara yang diputuskan sejak tahap implementasi. SQLite adalah sumber kebenaran data aplikasi dan wajib bekerja offline.
+- **Cloud opsional:** Supabase (Postgres + Auth + Row Level Security + Edge Functions) pada project khusus aplikasi ini, model hybrid: data tersanitasi disinkron setelah login dan consent. Aplikasi tetap berfungsi penuh tanpa Supabase. Detail aturan di §6.1.
 - **AI integration:** `AiProvider` adapter terpisah dari UI dan service diagnosis; provider dinonaktifkan secara default sampai konfigurasi/consent tersedia. AI tidak menjadi dependensi diagnosis inti. Jangan menganggap Claude Code sebagai provider AI runtime aplikasi.
 - **Unit/UI tests:** Vitest + React Testing Library.
 - **End-to-end UI tests:** Playwright untuk alur desktop/web UI yang dapat diuji otomatis; verifikasi USB nyata tetap memerlukan perangkat fisik.
@@ -96,15 +100,17 @@ Rust service layer
   ├── Driver diagnostics
   ├── Recovery guide links
   ├── Logging / redaction
-  ├── SQLite repository (data lokal)
+  ├── SQLite repository (data lokal, sumber kebenaran)
+  ├── Optional cloud sync service (login + consent, data tersanitasi, antrean offline)
   └── Optional AI Assistant service
        ├── Consent + context sanitizer
        ├── Provider adapter / timeout / limits
        └── No autonomous device commands
         │
         ├── Android SDK Platform-Tools terverifikasi
-        ├── Database lokal aplikasi
-        └── AI provider opsional (hanya setelah consent; konteks disanitasi)
+        ├── Database lokal aplikasi (SQLite)
+        ├── Supabase opsional: Auth, Postgres + RLS, Edge Functions
+        └── AI provider opsional (lewat Edge Function tepercaya atau key milik pengguna; hanya setelah consent)
 ```
 
 ### Aturan backend
@@ -119,6 +125,31 @@ Rust service layer
 - Tidak ada telemetri jaringan secara default. Setiap fitur jaringan di masa depan harus dijelaskan dan meminta persetujuan.
 - AI hanya mengirim konteks yang diperlukan setelah pengguna melihat data yang akan dibagikan dan menyetujuinya. Redaksi identifier perangkat, path pengguna, dan informasi pribadi secara default.
 - AI tidak boleh memanggil shell bebas atau menyusun perintah bebas untuk dieksekusi. Jika di masa depan ada tool action, ia harus berupa fungsi allowlist yang ditentukan developer, divalidasi backend, dan mendapat konfirmasi manusia sebelum dijalankan. Pada MVP, AI hanya menjelaskan/menyarankan.
+
+### 6.1 Supabase (cloud hybrid, opsional)
+
+Keputusan pemilik proyek (23 Oktober 2026): Supabase dipakai sebagai lapisan cloud **opsional** di atas SQLite lokal.
+
+**Fungsi yang disetujui**
+
+1. **Akun teknisi** — Supabase Auth untuk login teknisi/staf servis. Tanpa login, seluruh fitur lokal tetap tersedia.
+2. **Sinkron & backup riwayat** — ringkasan diagnosis yang telah disanitasi disalin ke Supabase setelah login dan consent; dapat dipulihkan di komputer lain milik akun yang sama.
+3. **Laporan bersama tim** — laporan diagnosis tersanitasi dapat dibagikan ke anggota tim/servis yang sama.
+4. **Backend AI tepercaya** — Supabase Edge Functions menyimpan API key provider AI sebagai secret server, sehingga key bersama tidak pernah ada di aplikasi desktop (memenuhi §10).
+
+**Aturan**
+
+- Gunakan project Supabase **khusus** aplikasi ini. Jangan memakai atau mengubah project lain di akun yang sama.
+- SQLite tetap sumber kebenaran. Supabase offline, timeout, kuota habis, atau error autentikasi tidak boleh memblokir diagnosis, log, atau riwayat lokal; perubahan diantrekan dan disinkron ulang.
+- Default: tidak login dan sinkron nonaktif. Sebelum sinkron pertama, tampilkan kategori data yang akan diunggah, tujuan, dan cara menonaktifkan/menghapus; minta consent terpisah.
+- Aplikasi hanya membawa URL project dan publishable/anon key (aman karena dilindungi RLS). `service_role`/secret key hanya di Supabase secrets atau CI, tidak pernah di aplikasi, repository, installer, atau log.
+- Row Level Security wajib aktif di setiap tabel sejak migrasi pertama. Kebijakan berbasis `auth.uid()` dan keanggotaan tim; data pengguna/tim lain tidak boleh terbaca.
+- Data minimization: yang boleh disinkron hanya ringkasan tersanitasi (brand/model bila diketahui, jenis koneksi, status run, ringkasan, level/kategori log, pesan log yang telah diredaksi). Tidak boleh: serial, IMEI, path pengguna, log mentah, PIN/pola, kata sandi, OTP, token akun perangkat.
+- Sesi Auth (access/refresh token) disimpan melalui penyimpanan kredensial OS, bukan localStorage polos.
+- Skema dikelola melalui file migrasi di repository (`supabase/migrations`), bukan perubahan manual di dashboard. Migrasi destruktif memerlukan persetujuan pemilik proyek.
+- Edge Function AI memverifikasi JWT pengguna, menerapkan rate limit dan batas ukuran input/output, tidak mencatat konten sensitif, dan tetap tunduk pada seluruh aturan AI di §10.
+- Pengguna dapat keluar akun, menghentikan sinkron, dan menghapus seluruh data cloud miliknya dari aplikasi.
+- `connect-src` pada CSP Tauri hanya ditambah domain project Supabase saat fitur ini diimplementasikan.
 
 ## 7. Peta Navigasi dan Halaman
 
@@ -196,6 +227,7 @@ Header atas: logo perisai, nama aplikasi, subjudul, Settings, Logs, Help, dan ko
 ### 7.9 Settings
 
 - Tema (default dark), lokasi Android Platform-Tools, lokasi data/log, bahasa, opsi privasi, pengaturan AI, dan pengaturan penyimpanan riwayat AI.
+- Akun & Sinkronisasi (Supabase, §6.1): login teknisi, status sinkron terakhir, tim, consent sinkron, hentikan sinkron, dan hapus data cloud. Default: tidak login dan sinkron nonaktif.
 - Provider AI default: `Nonaktif`. Provider cloud tidak boleh aktif sampai pengguna mengonfigurasi dan menyetujui pengiriman data. Pilihan lokal hanya boleh ditampilkan sebagai tersedia jika benar-benar diimplementasikan dan lolos tes.
 - Perubahan path harus divalidasi dan diuji sebelum disimpan.
 - Pengaturan yang belum diimplementasikan tidak boleh tampil seolah-olah bekerja.
@@ -282,6 +314,18 @@ Header atas: logo perisai, nama aplikasi, subjudul, Settings, Logs, Help, dan ko
 
 - `id`, `runId`, `timestamp`, `level`, `message`, `detailsRedacted`
 
+### Data cloud (Supabase, opsional)
+
+Skema final ditetapkan pada Milestone 3; batas minimum:
+
+- `profiles` — `id` (= `auth.uid()`), `displayName`, `createdAt`.
+- `teams`, `team_members` — keanggotaan tim untuk laporan bersama; peran minimum `owner | member`.
+- `diagnostic_runs` (cloud) — salinan tersanitasi dari `DiagnosticRun` + `ownerId`, `teamId` (nullable), `localId`, `syncedAt`.
+- `diagnostic_logs` (cloud) — hanya `level`, kategori, `timestamp`, dan pesan yang telah diredaksi; tidak ada `detailsRedacted` mentah kecuali lolos redaksi.
+- `shared_reports` — laporan yang sengaja dibagikan ke tim.
+
+Semua tabel cloud memakai RLS. ID sesi lokal tidak boleh berupa serial perangkat.
+
 Seluruh nilai dari perangkat dianggap tidak tepercaya. Validasi panjang dan karakter teks sebelum ditampilkan atau diekspor.
 
 ## 12. Persyaratan Nonfungsional
@@ -294,6 +338,7 @@ Seluruh nilai dari perangkat dianggap tidak tepercaya. Validasi panjang dan kara
 - Error ditampilkan dengan bahasa manusia, disertai detail teknis opsional untuk teknisi.
 - Simpan minimum data yang diperlukan dan hindari pencatatan kredensial.
 - Saat AI nonaktif/provider gagal, diagnosis dasar tetap berfungsi tanpa jaringan.
+- Saat Supabase tidak dapat dijangkau atau pengguna tidak login, aplikasi tetap dapat dibuka, mendiagnosis, dan menyimpan riwayat lokal; sinkron diantrekan.
 - Konten AI yang menampilkan link atau markdown harus disanitasi; jangan render HTML mentah dari model.
 - Tidak mengklaim kompatibilitas merek/model sebelum diuji.
 
@@ -305,6 +350,7 @@ Seluruh nilai dari perangkat dianggap tidak tepercaya. Validasi panjang dan kara
 - Component tests: sidebar, kartu metode, pilihan brand, panel device info, progress, tombol clear log, empty state, demo mode, custom dropdown/combobox, consent AI, dan keadaan provider AI.
 - E2E: navigasi halaman, resize window layout, interaksi kartu, kondisi no-device, error ADB, progress/cancel, clear logs, settings validation, semua dropdown kustom, serta AI-disabled/provider-error/cloud-consent flows.
 - Typecheck dan lint harus lulus.
+- Supabase: tes kebijakan RLS (pengguna A tidak dapat membaca/mengubah data pengguna atau tim lain), validasi payload sinkron tersanitasi, antrean offline dan sinkron ulang, konflik sinkron, logout, dan hapus data cloud.
 
 ### Manual dengan perangkat nyata
 
@@ -332,6 +378,7 @@ Jangan membuat klaim dukungan lintas-merek dari satu perangkat uji saja.
 - [ ] Tindakan berisiko data jelas diperingatkan dan tidak dieksekusi pada MVP.
 - [ ] Tidak ada arbitrary shell execution atau command untuk menonaktifkan FRP.
 - [ ] Tidak ada data sensitif yang disimpan/diekspor tanpa kebutuhan dan pemberitahuan.
+- [ ] Supabase: RLS aktif di semua tabel, tidak ada secret key di aplikasi/repo, aplikasi berfungsi penuh tanpa login, dan sinkron hanya berjalan setelah consent.
 - [ ] Unit/component tests, lint, dan typecheck lulus.
 - [ ] E2E test utama lulus; keterbatasan tes hardware didokumentasikan.
 - [ ] Installer Windows diuji pada instalasi bersih.
@@ -342,8 +389,8 @@ Jangan membuat klaim dukungan lintas-merek dari satu perangkat uji saja.
 
 1. **Milestone 1 — Visual shell:** layout statis dengan data demo yang ditandai, semua halaman dan responsive window behaviour.
 2. **Milestone 2 — Live diagnostics:** deteksi ADB/Fastboot, device snapshot, status, progress, log, dan error path.
-3. **Milestone 3 — Local persistence:** SQLite, history, clear/export, settings, custom dropdowns.
-4. **Milestone 4 — AI Assistant:** provider adapter, consent, log redaction, safe triage, error/fallback flows.
+3. **Milestone 3 — Local persistence & cloud opsional:** SQLite, history, clear/export, settings, custom dropdowns; project Supabase khusus, migrasi skema + RLS, Auth teknisi, sinkron/backup tersanitasi (opt-in), dan laporan bersama tim.
+4. **Milestone 4 — AI Assistant:** provider adapter, consent, log redaction, safe triage, error/fallback flows; backend AI tepercaya melalui Supabase Edge Functions (secret di server).
 5. **Milestone 5 — Quality and release:** test suite, security review, hardware matrix, installer.
 
 Jangan mulai milestone berikutnya dengan mengorbankan kesetiaan visual atau membuat mock data tampak seperti data perangkat nyata.
@@ -360,3 +407,7 @@ Gunakan dokumentasi resmi sebagai sumber saat implementasi:
 - Radix UI Select: <https://www.radix-ui.com/primitives/docs/components/select>
 - Claude Code / CLAUDE.md project context: <https://support.claude.com/en/articles/14553240-give-claude-context-claude-md-and-better-prompts>
 - Anthropic API key security (jika provider Claude API dipilih): <https://support.claude.com/en/articles/9767949-api-key-best-practices-keep-your-keys-safe-and-secure>
+- Supabase Row Level Security: <https://supabase.com/docs/guides/database/postgres/row-level-security>
+- Supabase API keys (publishable vs secret): <https://supabase.com/docs/guides/api/api-keys>
+- Supabase Auth: <https://supabase.com/docs/guides/auth>
+- Supabase Edge Functions secrets: <https://supabase.com/docs/guides/functions/secrets>
