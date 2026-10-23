@@ -14,6 +14,8 @@ const deviceText = z
 export const TransportSchema = z.enum(['usb', 'adb', 'fastboot', 'unknown'])
 export const AuthorizationSchema = z.enum(['authorized', 'unauthorized', 'offline', 'unavailable', 'unknown'])
 export const DeviceSourceSchema = z.enum(['live', 'demo'])
+export const DeviceModeSchema = z.enum(['normal', 'recovery', 'sideload', 'rescue', 'bootloader'])
+export type DeviceMode = z.infer<typeof DeviceModeSchema>
 
 /** DeviceSnapshot — PRD §11. `id` adalah ID sesi internal, bukan serial mentah. */
 export const DeviceSnapshotSchema = z.object({
@@ -25,6 +27,7 @@ export const DeviceSnapshotSchema = z.object({
   securityPatch: deviceText,
   transport: TransportSchema,
   authorization: AuthorizationSchema,
+  mode: DeviceModeSchema.nullable().optional(),
   detectedAt: z.iso.datetime(),
   source: DeviceSourceSchema,
 })
@@ -77,7 +80,13 @@ export type BrandId =
   | 'other'
 
 export type DetectionStatus = 'idle' | 'detecting' | 'found' | 'none' | 'error'
-export type RunStatus = 'idle' | 'running' | 'cancelled' | 'finished'
+export type RunStatus = 'idle' | 'running' | 'cancelled' | 'finished' | 'failed'
+
+/** Jalur yang menjalankan perintah perangkat (backend). Jalur lain hanya membuka panduan. */
+export type DeviceMethodId = Extract<MethodId, 'adb-diagnostics' | 'fastboot-guide'>
+export function isDeviceMethod(method: MethodId): method is DeviceMethodId {
+  return method === 'adb-diagnostics' || method === 'fastboot-guide'
+}
 
 /** Hasil layanan native. `unavailable` = backend belum ada / alat tidak dapat dijalankan. */
 export type NativeResult<T> =

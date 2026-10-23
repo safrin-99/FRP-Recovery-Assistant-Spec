@@ -1,5 +1,5 @@
 import { PlugZap, Search } from 'lucide-react'
-import { AUTHORIZATION_LABELS, TRANSPORT_LABELS } from '@/lib/deviceLabels'
+import { AUTHORIZATION_LABELS, MODE_LABELS, TRANSPORT_LABELS } from '@/lib/deviceLabels'
 import { cn } from '@/lib/cn'
 import { orUnknown } from '@/lib/format'
 import { selectActiveDevice, useAppStore } from '@/store/appStore'
@@ -25,8 +25,12 @@ export function deviceRows(device: DeviceSnapshot): Array<{ label: string; value
     { label: 'Status FRP', value: FRP_STATUS_UNVERIFIED, tone: 'warning' },
     { label: 'Connection', value: TRANSPORT_LABELS[device.transport] },
     { label: 'Otorisasi', value: AUTHORIZATION_LABELS[device.authorization] },
+    { label: 'Mode', value: device.mode ? MODE_LABELS[device.mode] : '—' },
   ]
 }
+
+/** Baris ringkas untuk panel kanan Home (tanpa Otorisasi/Mode agar sejajar referensi). */
+const COMPACT_HIDDEN = new Set(['Otorisasi', 'Mode'])
 
 function PhoneGlyph() {
   return (
@@ -65,7 +69,7 @@ export function DeviceInfoPanel({ className }: { className?: string }) {
           </div>
           <dl className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-[clamp(2px,0.45vh,6px)] text-[15px]">
             {deviceRows(device)
-              .filter((row) => row.label !== 'Otorisasi')
+              .filter((row) => !COMPACT_HIDDEN.has(row.label))
               .map((row) => (
                 <div key={row.label} className="contents">
                   <dt className="whitespace-nowrap text-fg-2">{row.label}</dt>

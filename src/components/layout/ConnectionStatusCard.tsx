@@ -23,7 +23,12 @@ export function ConnectionStatusCard() {
     title = 'Mode Demo'
     subtitle = 'Bukan perangkat nyata'
   } else if (device?.source === 'live') {
-    if (device.authorization === 'authorized') {
+    if (device.transport === 'fastboot') {
+      icon = PlugZap
+      iconClass = 'text-cyan border-cyan/50'
+      title = 'Mode Fastboot'
+      subtitle = `${TRANSPORT_LABELS[device.transport]} terdeteksi`
+    } else if (device.authorization === 'authorized') {
       icon = CircleCheck
       iconClass = 'text-success border-success/50'
       title = 'Device Ready'

@@ -1,14 +1,14 @@
 import { Cpu } from 'lucide-react'
 import { useState } from 'react'
 import { OFFICIAL_LINKS } from '@/data/catalog'
-import { nativeService } from '@/services/nativeService'
+import { nativeService, type DriverEntry, type DriverReport } from '@/services/nativeService'
 import type { NativeResult } from '@/types/domain'
 import { PageHeader, SectionTitle } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { ExternalLink } from '@/components/ui/ExternalLink'
 import { InlineAlert } from '@/components/ui/InlineAlert'
 import { Panel } from '@/components/ui/Panel'
-import { StatusBadge } from '@/components/ui/StatusBadge'
+import { StatusBadge, type BadgeTone } from '@/components/ui/StatusBadge'
 
 const STEPS = [
   'Gunakan kabel data (bukan kabel khusus pengisian) dan port USB langsung di komputer.',
@@ -17,9 +17,28 @@ const STEPS = [
   'Buka Device Manager Windows dan pastikan perangkat tidak bertanda peringatan.',
 ]
 
+const INTERFACE_LABELS: Record<DriverEntry['interface'], string> = {
+  adb: 'Antarmuka ADB',
+  fastboot: 'Antarmuka Fastboot',
+  'android-usb': 'Perangkat USB Android',
+}
+
+const STATUS_META: Record<DriverEntry['status'], { tone: BadgeTone; label: string }> = {
+  ok: { tone: 'success', label: 'Driver aktif' },
+  problem: { tone: 'danger', label: 'Bermasalah' },
+  disabled: { tone: 'warning', label: 'Dinonaktifkan' },
+  unknown: { tone: 'neutral', label: 'Tidak diketahui' },
+}
+
+const LEVEL_TONE: Record<DriverReport['level'], 'success' | 'warning' | 'info'> = {
+  ok: 'success',
+  warning: 'warning',
+  info: 'info',
+}
+
 export function DriversPage() {
   const [checking, setChecking] = useState(false)
-  const [result, setResult] = useState<NativeResult<{ summary: string }> | null>(null)
+  const [result, setResult] = useState<NativeResult<DriverReport> | null>(null)
 
   const runCheck = async () => {
     setChecking(true)
@@ -34,7 +53,7 @@ export function DriversPage() {
     <div className="flex flex-col gap-4">
       <PageHeader
         title="Drivers"
-        description="Status driver USB yang dapat dideteksi dan panduan pemasangan dari produsen resmi."
+        description="Status driver USB Android yang terlihat di Device Manager Windows, serta panduan pemasangan dari produsen resmi."
       />
 
       <Panel aria-labelledby="driver-status-title" className="p-5">
@@ -45,13 +64,13 @@ export function DriversPage() {
             {result === null ? <StatusBadge>Belum diperiksa</StatusBadge> : null}
             {result?.kind === 'unavailable' ? <StatusBadge tone="warning">Tidak dapat diperiksa</StatusBadge> : null}
             {result?.kind === 'error' ? <StatusBadge tone="danger">Error</StatusBadge> : null}
-            {result?.kind === 'ok' ? <StatusBadge tone="success">Diperiksa</StatusBadge> : null}
+            {result?.kind === 'ok' ? <StatusBadge tone="info">Diperiksa</StatusBadge> : null}
           </div>
           <Button loading={checking} onClick={() => void runCheck()}>
             Periksa driver
           </Button>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-col gap-3">
           {result?.kind === 'unavailable' ? (
             <InlineAlert tone="warning" title="Pemeriksaan belum tersedia">
               {result.reason}
@@ -62,11 +81,34 @@ export function DriversPage() {
               {result.message}
             </InlineAlert>
           ) : null}
-          {result?.kind === 'ok' ? <p className="text-[15px] text-fg">{result.value.summary}</p> : null}
+          {result?.kind === 'ok' ? (
+            <>
+              <InlineAlert tone={LEVEL_TONE[result.value.level]} title="Ringkasan">
+                {result.value.summary}
+              </InlineAlert>
+              {result.value.entries.length > 0 ? (
+                <ul className="divide-y divide-line rounded-ui-md border border-line">
+                  {result.value.entries.map((entry, index) => (
+                    <li key={`${entry.name}-${index}`} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-fg">{entry.name}</p>
+                        <p className="text-sm text-fg-muted">
+                          {INTERFACE_LABELS[entry.interface]}
+                          {entry.vendorGuess ? ` · Dugaan merek: ${entry.vendorGuess}` : ''}
+                          {entry.problemCode !== null ? ` · Kode masalah ${entry.problemCode}` : ''}
+                        </p>
+                      </div>
+                      <StatusBadge tone={STATUS_META[entry.status].tone}>{STATUS_META[entry.status].label}</StatusBadge>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </>
+          ) : null}
           {result === null ? (
             <p className="text-[15px] text-fg-2">
-              Aplikasi tidak memasang driver secara otomatis. Installer driver hanya dijalankan oleh Anda sendiri dari
-              sumber resmi.
+              Aplikasi hanya membaca daftar perangkat Windows dan tidak memasang driver. Installer driver hanya
+              dijalankan oleh Anda sendiri dari sumber resmi.
             </p>
           ) : null}
         </div>
@@ -79,11 +121,9 @@ export function DriversPage() {
             <li key={step}>{step}</li>
           ))}
         </ol>
-        {OFFICIAL_LINKS.oemUsbDrivers ? (
-          <p className="mt-4 text-[15px]">
-            <ExternalLink href={OFFICIAL_LINKS.oemUsbDrivers.url}>{OFFICIAL_LINKS.oemUsbDrivers.label}</ExternalLink>
-          </p>
-        ) : null}
+        <p className="mt-4 text-[15px]">
+          <ExternalLink link={OFFICIAL_LINKS.oemUsbDrivers} />
+        </p>
       </Panel>
     </div>
   )

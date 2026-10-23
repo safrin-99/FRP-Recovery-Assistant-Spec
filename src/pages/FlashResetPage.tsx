@@ -62,14 +62,12 @@ export function FlashResetPage() {
       <Panel aria-labelledby="official-title" className="p-5">
         <SectionTitle id="official-title">Panduan resmi</SectionTitle>
         <ul className="mt-3 space-y-2 text-[15px]">
-          {[OFFICIAL_LINKS.androidHelp, OFFICIAL_LINKS.googleAccountHelp].map((link) =>
-            link ? (
-              <li key={link.id}>
-                <ExternalLink href={link.url}>{link.label}</ExternalLink>
-                <span className="ml-2 text-sm text-fg-muted">{link.description}</span>
-              </li>
-            ) : null,
-          )}
+          {[OFFICIAL_LINKS.androidHelp, OFFICIAL_LINKS.googleAccountHelp].map((link) => (
+            <li key={link.id}>
+              <ExternalLink link={link} />
+              <span className="ml-2 text-sm text-fg-muted">{link.description}</span>
+            </li>
+          ))}
         </ul>
       </Panel>
     </div>

@@ -19,10 +19,9 @@ function expectNoVisibleNativeDropdown() {
 describe('App shell', () => {
   it('renders the sidebar in the PRD order with Home active', () => {
     render(<App />)
-    const labels = sidebarNav()
-      .getAllByRole('button')
-      .map((button) => button.textContent)
-    expect(labels).toEqual(NAV_ITEMS.map((item) => item.label))
+    const buttons = sidebarNav().getAllByRole('button')
+    expect(buttons).toHaveLength(NAV_ITEMS.length)
+    NAV_ITEMS.forEach((item, index) => expect(buttons[index]).toHaveAccessibleName(item.label))
     expect(sidebarNav().getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page')
   })
 
@@ -53,7 +52,7 @@ describe('App shell', () => {
     expect(screen.queryByText('DEMO')).not.toBeInTheDocument()
     const start = screen.getByRole('button', { name: /Mulai Diagnosis FRP/ })
     expect(start).toBeDisabled()
-    expect(start).toHaveAccessibleDescription(/belum tersedia/)
+    expect(start).toHaveAccessibleDescription(/aplikasi desktop/)
   })
 
   it('reports Auto Detect as unavailable instead of inventing a device', async () => {
@@ -61,7 +60,7 @@ describe('App shell', () => {
     render(<App />)
     await user.click(screen.getAllByRole('button', { name: 'Auto Detect' })[0]!)
     await waitFor(() => expect(useAppStore.getState().detection.status).toBe('error'))
-    expect(screen.getAllByText(/Milestone 2/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/aplikasi desktop/).length).toBeGreaterThan(0)
     expect(screen.queryByText('Device Ready')).not.toBeInTheDocument()
   })
 

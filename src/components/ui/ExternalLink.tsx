@@ -1,26 +1,29 @@
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import type { MouseEvent, ReactNode } from 'react'
+import type { OfficialLink } from '@/data/catalog'
 import { cn } from '@/lib/cn'
-import { isSafeExternalUrl, openExternal } from '@/lib/external'
+import { isSafeExternalUrl, openOfficialLink } from '@/lib/external'
 
-/** Tautan eksternal: jelas sebagai eksternal, hanya https, lewat `openExternal`. */
+/**
+ * Tautan resmi: jelas sebagai eksternal dan dibuka di browser default. Di aplikasi desktop
+ * hanya ID tautan yang dikirim ke backend (URL ditentukan backend).
+ */
 export function ExternalLink({
-  href,
+  link,
   children,
   className,
 }: {
-  href: string
-  children: ReactNode
+  link: OfficialLink
+  children?: ReactNode
   className?: string
 }) {
-  const safe = isSafeExternalUrl(href)
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
-    openExternal(href)
+    void openOfficialLink(link)
   }
   return (
     <a
-      href={safe ? href : undefined}
+      href={isSafeExternalUrl(link.url) ? link.url : undefined}
       onClick={onClick}
       target="_blank"
       rel="noopener noreferrer"
@@ -29,7 +32,7 @@ export function ExternalLink({
         className,
       )}
     >
-      {children}
+      {children ?? link.label}
       <ExternalLinkIcon aria-hidden className="size-3.5" />
       <span className="sr-only"> (tautan eksternal, membuka di browser)</span>
     </a>

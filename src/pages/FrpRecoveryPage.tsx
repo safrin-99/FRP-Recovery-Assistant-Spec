@@ -42,7 +42,7 @@ function SituationCard({
   icon: LucideIcon
   title: string
   children: ReactNode
-  links: ReadonlyArray<OfficialLink | undefined>
+  links: ReadonlyArray<OfficialLink>
   action?: ReactNode
 }) {
   return (
@@ -53,13 +53,11 @@ function SituationCard({
       </div>
       <div className="text-sm leading-relaxed text-fg-2">{children}</div>
       <ul className="mt-auto space-y-1 pt-1 text-sm">
-        {links.map((link) =>
-          link ? (
-            <li key={link.id}>
-              <ExternalLink href={link.url}>{link.label}</ExternalLink>
-            </li>
-          ) : null,
-        )}
+        {links.map((link) => (
+          <li key={link.id}>
+            <ExternalLink link={link} />
+          </li>
+        ))}
       </ul>
       {action}
     </article>

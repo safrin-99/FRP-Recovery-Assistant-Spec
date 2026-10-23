@@ -9,10 +9,8 @@ import { ProgressPanel } from '@/components/logs/ProgressPanel'
 import { DataPreservationBanner } from '@/components/safety/DataPreservationBanner'
 import { Button } from '@/components/ui/Button'
 import { Panel } from '@/components/ui/Panel'
-import { useAppStore } from '@/store/appStore'
-
-const DIAGNOSIS_UNAVAILABLE =
-  'Diagnosis perangkat nyata belum tersedia pada versi ini (Milestone 2). Aktifkan Mode Demo di Settings untuk pratinjau.'
+import { useShallow } from 'zustand/react/shallow'
+import { selectDiagnosisAvailability, useAppStore } from '@/store/appStore'
 
 export function HomePage() {
   const method = useAppStore((s) => s.method)
@@ -24,7 +22,7 @@ export function HomePage() {
   const run = useAppStore((s) => s.run)
   const startDiagnosis = useAppStore((s) => s.startDiagnosis)
   const cancelDiagnosis = useAppStore((s) => s.cancelDiagnosis)
-  const demoAvailable = useAppStore((s) => s.demoMode && !s.liveDevice)
+  const availability = useAppStore(useShallow(selectDiagnosisAvailability))
 
   return (
     <div className="flex min-h-full flex-col gap-4">
@@ -92,8 +90,8 @@ export function HomePage() {
           <div className="mt-auto">
             <PrimaryActionButton
               running={run.status === 'running'}
-              disabled={!demoAvailable}
-              disabledReason={DIAGNOSIS_UNAVAILABLE}
+              disabled={!availability.enabled}
+              disabledReason={availability.reason ?? undefined}
               onStart={startDiagnosis}
               onCancel={cancelDiagnosis}
             />

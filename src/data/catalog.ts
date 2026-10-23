@@ -100,18 +100,28 @@ export const BRAND_LABELS: Record<BrandId, string> = Object.fromEntries(
   BRAND_ROWS.flat().map((brand) => [brand.id, brand.label]),
 ) as Record<BrandId, string>
 
+export type OfficialLinkId =
+  | 'platformTools'
+  | 'oemUsbDrivers'
+  | 'googleAccountRecovery'
+  | 'googleAccountHelp'
+  | 'androidHelp'
+  | 'xiaomiAccount'
+  | 'samsungAccount'
+
 export interface OfficialLink {
-  id: string
+  id: OfficialLinkId
   label: string
   description: string
   url: string
 }
 
 /**
- * Katalog tautan resmi (hanya https, hanya domain penerbit resmi). Tautan dalam
- * (deep link) per merek sengaja belum dimasukkan sampai dikurasi dan diverifikasi.
+ * Katalog tautan resmi (hanya https, hanya domain penerbit resmi). Di aplikasi desktop UI
+ * hanya mengirim `id`; URL yang dibuka ditentukan backend (`src-tauri/src/links.rs`) —
+ * keduanya harus selaras. Deep link per merek belum dimasukkan sampai dikurasi.
  */
-export const OFFICIAL_LINKS: Record<string, OfficialLink> = {
+export const OFFICIAL_LINKS: Record<OfficialLinkId, OfficialLink> = {
   platformTools: {
     id: 'platformTools',
     label: 'Android SDK Platform-Tools',
@@ -154,4 +164,11 @@ export const OFFICIAL_LINKS: Record<string, OfficialLink> = {
     description: 'Situs resmi Akun Samsung untuk pemulihan akun.',
     url: 'https://account.samsung.com',
   },
+}
+
+/** Tautan dukungan resmi untuk jalur "Official Service" sesuai brand terpilih. */
+export function officialServiceLink(brand: BrandId): OfficialLink {
+  if (brand === 'samsung') return OFFICIAL_LINKS.samsungAccount
+  if (brand === 'xiaomi') return OFFICIAL_LINKS.xiaomiAccount
+  return OFFICIAL_LINKS.androidHelp
 }

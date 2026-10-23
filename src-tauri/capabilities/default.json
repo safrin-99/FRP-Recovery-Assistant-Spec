@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Izin minimum jendela utama (Milestone 1): kontrol jendela kustom dan drag titlebar. Tanpa shell, filesystem, atau HTTP.",
+  "description": "Izin minimum jendela utama: kontrol jendela kustom, event diagnosis, dan perintah diagnosis read-only yang di-allowlist. Tanpa shell, filesystem, HTTP, atau opener dari JS.",
   "windows": ["main"],
   "permissions": [
     "core:event:default",
@@ -9,6 +9,12 @@
     "core:window:allow-minimize",
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
-    "core:window:allow-start-dragging"
+    "core:window:allow-start-dragging",
+    "allow-check-platform-tools",
+    "allow-detect-devices",
+    "allow-start-diagnosis",
+    "allow-cancel-diagnosis",
+    "allow-check-driver-status",
+    "allow-open-official-link"
   ]
 }

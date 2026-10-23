@@ -1,34 +1,25 @@
-import { DeviceSnapshotSchema, type DeviceSnapshot, type NativeResult } from '@/types/domain'
+import { isTauri } from '@tauri-apps/api/core'
+import type { NativeResult } from '@/types/domain'
+import { DESKTOP_ONLY_REASON, type NativeService } from './nativeTypes'
+import { tauriNativeService } from './tauriNativeService'
 
-/**
- * Lapisan layanan native (Rust via Tauri IPC). Pada Milestone 1 backend belum ada,
- * sehingga semua fungsi melapor `unavailable` secara jujur — tidak ada hasil palsu.
- * Milestone 2 menggantikan implementasi dengan perintah Tauri yang spesifik dan
- * allowlisted (`detect_devices`, dst.), bukan runner perintah generik.
- */
-export type DetectOutcome = NativeResult<DeviceSnapshot | null>
+export * from './nativeTypes'
 
-export interface NativeService {
-  detectDevices(signal?: AbortSignal): Promise<DetectOutcome>
-  checkPlatformTools(): Promise<NativeResult<{ adb: string | null; fastboot: string | null }>>
-  checkDriverStatus(): Promise<NativeResult<{ summary: string }>>
-}
+const unavailable = <T>(): Promise<NativeResult<T>> =>
+  Promise.resolve({ kind: 'unavailable', reason: DESKTOP_ONLY_REASON })
 
-const BACKEND_PENDING = 'Backend native (Rust/Tauri) belum diimplementasikan — dijadwalkan pada Milestone 2.'
-
+/** Dipakai di luar aplikasi desktop (browser dev/test): melapor `unavailable`, tanpa hasil palsu. */
 export const unavailableNativeService: NativeService = {
-  detectDevices: () => Promise.resolve({ kind: 'unavailable', reason: BACKEND_PENDING }),
-  checkPlatformTools: () => Promise.resolve({ kind: 'unavailable', reason: BACKEND_PENDING }),
-  checkDriverStatus: () => Promise.resolve({ kind: 'unavailable', reason: BACKEND_PENDING }),
+  available: false,
+  checkPlatformTools: unavailable,
+  detectDevices: unavailable,
+  startDiagnosis: unavailable,
+  cancelDiagnosis: () => Promise.resolve(),
+  checkDriverStatus: unavailable,
+  openOfficialLink: unavailable,
 }
 
-/** Validasi data mentah dari backend sebelum masuk store (data perangkat tidak tepercaya). */
-export function parseDeviceSnapshot(raw: unknown): DeviceSnapshot | null {
-  const result = DeviceSnapshotSchema.safeParse(raw)
-  return result.success ? result.data : null
-}
-
-export let nativeService: NativeService = unavailableNativeService
+export let nativeService: NativeService = isTauri() ? tauriNativeService : unavailableNativeService
 
 /** Dipakai test untuk menyuntikkan layanan palsu secara eksplisit. */
 export function setNativeServiceForTests(service: NativeService): void {

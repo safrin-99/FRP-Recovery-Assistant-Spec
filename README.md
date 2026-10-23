@@ -31,7 +31,7 @@ Paket spesifikasi untuk membangun aplikasi desktop Windows melalui Claude Code.
 
 ---
 
-## Pengembangan (Milestone 1 — visual shell)
+## Pengembangan (Milestone 2 — diagnosis perangkat, read-only)
 
 ### Status saat ini
 
@@ -40,8 +40,12 @@ Paket spesifikasi untuk membangun aplikasi desktop Windows melalui Claude Code.
 | UI React (9 halaman, sidebar, titlebar, panel Home) | Ada; diuji Vitest + Playwright (Edge) |
 | `AppSelect` / `AppCombobox` kustom | Ada; tanpa `<select>`/`<datalist>` native, diuji keyboard |
 | Mode Demo (data contoh berbadge `DEMO`) | Ada; nonaktif secara default (Settings → Mode Demo) |
-| Deteksi perangkat ADB/Fastboot nyata | **Belum** — Milestone 2. Auto Detect melapor "tidak tersedia" |
-| Driver check, Platform-Tools check | **Belum** — Milestone 2 |
+| Pencarian & verifikasi Platform-Tools (halaman Tools) | Ada; diuji dengan adb/fastboot 37.0.1 asli |
+| Auto Detect + Device Info (ADB/Fastboot) | Ada; diuji di aplikasi desktop dengan alat asli **tanpa ponsel** (jalur "tidak ada perangkat"). Uji dengan ponsel fisik (authorized/unauthorized/Fastboot) **belum** |
+| Diagnosis bertahap + batal (ADB Diagnostics, Recovery/Fastboot Guide) | Ada; hanya membaca status. Pembatalan diuji di unit test, belum dengan ponsel |
+| Account Recovery / Official Service | Membuka checklist resmi / tautan dukungan resmi sesuai brand (tanpa perintah perangkat) |
+| Status driver (halaman Drivers) | Ada; membaca Device Manager lewat SetupAPI, tidak memasang driver |
+| Tautan resmi di aplikasi desktop | Lewat perintah backend `open_official_link` (hanya ID); belum diklik dalam uji otomatis agar tidak membuka browser |
 | SQLite, riwayat log, ekspor, pengaturan permanen | **Belum** — Milestone 3 (pengaturan hanya berlaku per sesi) |
 | AI Assistant (provider, consent, redaksi) | **Belum** — Milestone 4; status `Belum dikonfigurasi` |
 | Supabase (Auth, sinkron/backup, laporan tim) | **Belum** — Milestone 3; project Supabase khusus belum dibuat |
@@ -74,6 +78,27 @@ npm run build        # typecheck + build produksi Vite ke dist/
 npm run tauri dev    # jendela desktop — butuh Rust + MSVC
 ```
 
+Backend Rust (jalankan di `src-tauri/`):
+
+```bash
+cargo test                                   # unit test parser, runner proses, redaksi, ACL state
+cargo test -- --ignored --nocapture          # smoke test dengan adb/fastboot asli + Device Manager
+cargo clippy --all-targets -- -D warnings
+cargo fmt --check
+```
+
+### Keamanan backend (Milestone 2)
+
+- Perintah IPC hanya: `check_platform_tools`, `detect_devices`, `start_diagnosis`, `cancel_diagnosis`,
+  `check_driver_status`, `open_official_link`. Masing-masing diizinkan eksplisit lewat ACL (`build.rs` +
+  `capabilities/default.json`); tidak ada plugin shell/fs/http dan tidak ada runner perintah generik.
+- adb/fastboot hanya dipanggil dengan argumen tetap (`version`, `devices`, `shell getprop <kunci allowlist>`,
+  `getvar product`), dengan timeout, pembatalan, batas output 256 KB, dan tanpa jendela konsol.
+- Serial perangkat tidak pernah dikirim ke UI (diganti ID sesi `device-N`) dan disamarkan di log; path profil
+  pengguna ditampilkan sebagai `%USERPROFILE%`. Semua respons backend divalidasi Zod di frontend.
+- Perintah `adb devices` pertama menyalakan server ADB lokal (`localhost:5037`) yang tetap berjalan di latar
+  belakang, sama seperti alat Android lain.
+
 Screenshot e2e (1536×1024, 1200×760, 1100×760, 1024×640) ditulis ke `e2e/__screenshots__/actual/`
 (diabaikan git) untuk dibandingkan manual dengan `reference-ui.png`. Baseline regresi piksel belum ditetapkan.
 
@@ -86,7 +111,7 @@ Screenshot e2e (1536×1024, 1200×760, 1100×760, 1024×640) ditulis ke `e2e/__s
 - realme, Infinix, dan TECNO tidak tersedia di Simple Icons, sehingga memakai monogram huruf sampai ada aset resmi berlisensi.
 - Font Inter Variable dibundel lewat `@fontsource-variable/inter` (SIL Open Font License).
 
-### Troubleshooting ADB (persiapan Milestone 2)
+### Troubleshooting ADB
 
 - `adb` tidak dikenali: pasang Platform-Tools resmi dan atur lokasinya (pengaturan path menyusul di Milestone 2–3).
 - Perangkat `unauthorized`: buka kunci layar dan setujui dialog *Allow USB debugging* pada perangkat.

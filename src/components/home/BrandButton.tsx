@@ -49,7 +49,6 @@ export function BrandButton({
       type="button"
       aria-pressed={selected}
       onClick={onSelect}
-      title={label}
       className={cn(
         'focus-ring flex h-[clamp(44px,5.4vh,56px)] min-w-[100px] flex-none items-center justify-center gap-2 rounded-ui-md border px-3 text-base font-medium',
         'transition-colors duration-[var(--duration-fast)]',

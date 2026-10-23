@@ -88,8 +88,8 @@ export function SettingsPage() {
         <div className="mt-4 grid max-w-[720px] gap-4 md:grid-cols-2">
           <ReadOnlyField
             label="Android Platform-Tools"
-            value="Belum dikonfigurasi"
-            hint="Pemilihan dan validasi path dijadwalkan pada Milestone 2–3."
+            value="Deteksi otomatis"
+            hint="Dicari di PATH, ANDROID_HOME, Android SDK, dan winget (lihat Tools). Pilih path manual: Milestone 3."
           />
           <ReadOnlyField label="Data & log" value="Belum disimpan ke disk" hint="Lokasi penyimpanan lokal: Milestone 3." />
         </div>

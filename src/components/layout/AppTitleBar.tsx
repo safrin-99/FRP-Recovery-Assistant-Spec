@@ -51,7 +51,7 @@ function WindowButton({
     <button
       type="button"
       aria-label={label}
-      title={disabled ? `${label} — ${DESKTOP_ONLY_HINT}` : label}
+      aria-description={disabled ? DESKTOP_ONLY_HINT : undefined}
       disabled={disabled}
       onClick={onClick}
       className={cn(

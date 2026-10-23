@@ -12,7 +12,8 @@ export function AppSidebar() {
       aria-label="Navigasi utama"
       className="relative z-[var(--z-sidebar)] flex min-h-0 w-[264px] shrink-0 flex-col self-stretch rounded-ui-xl border border-line bg-sidebar px-2 py-3 max-[1199px]:w-[76px]"
     >
-      <nav aria-label="Halaman" className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto">
+      {/* Saat diciutkan, overflow dibiarkan terlihat agar tooltip label tidak terpotong. */}
+      <nav aria-label="Halaman" className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto max-[1199px]:overflow-visible">
         {NAV_ITEMS.map((item) => (
           <SidebarNavItem
             key={item.id}

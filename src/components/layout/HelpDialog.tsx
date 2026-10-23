@@ -41,14 +41,15 @@ export function HelpDialog() {
           <h3 className="mt-5 text-[15px] font-semibold text-fg">Tautan resmi</h3>
           <ul className="mt-2 space-y-1.5 text-sm">
             <li>
-              <ExternalLink href={OFFICIAL_LINKS.platformTools?.url ?? ''}>Android SDK Platform-Tools (ADB/Fastboot)</ExternalLink>
+              <ExternalLink link={OFFICIAL_LINKS.platformTools}>Android SDK Platform-Tools (ADB/Fastboot)</ExternalLink>
             </li>
             <li>
-              <ExternalLink href={OFFICIAL_LINKS.googleAccountHelp?.url ?? ''}>Bantuan Akun Google</ExternalLink>
+              <ExternalLink link={OFFICIAL_LINKS.googleAccountHelp} />
             </li>
           </ul>
           <p className="mt-5 text-xs text-fg-muted">
-            Build ini adalah Milestone 1 (visual shell): deteksi perangkat nyata belum tersedia.
+            Versi ini (Milestone 2) mendeteksi perangkat lewat ADB/Fastboot dan hanya membaca status. Riwayat log
+            permanen, AI Assistant, dan akun cloud belum tersedia.
           </p>
         </Dialog.Content>
       </Dialog.Portal>

@@ -10,6 +10,7 @@ const RUN_LABELS = {
   running: 'Berjalan',
   cancelled: 'Dibatalkan',
   finished: 'Selesai',
+  failed: 'Gagal',
 } as const
 
 /** Progress + log terbaru (DESIGN.md §9). Persentase hanya dari tahapan proses nyata/demo. */

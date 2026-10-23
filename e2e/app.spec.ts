@@ -107,7 +107,7 @@ test.describe('1536×1024 (target referensi)', () => {
     await expect(page.getByText('DEMO', { exact: true })).toHaveCount(0)
     await expect(page.getByRole('button', { name: /Mulai Diagnosis FRP/ })).toBeDisabled()
     await page.getByRole('button', { name: 'Auto Detect' }).first().click()
-    await expect(page.getByText(/Milestone 2/).first()).toBeVisible()
+    await expect(page.getByText(/aplikasi desktop/).first()).toBeVisible()
     await page.screenshot({ path: `${SHOTS}/home-nodevice-1536x1024.png` })
   })
 

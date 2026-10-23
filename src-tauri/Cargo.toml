@@ -15,8 +15,17 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2.7.4", features = [] }
 
 [dependencies]
-# Milestone 1: hanya shell jendela. Tidak ada plugin shell/fs/http.
+# Tidak ada plugin shell/fs/http. Proses eksternal hanya adb/fastboot lewat fungsi allowlist.
 tauri = { version = "2.12.5", features = [] }
+# Hanya dipakai dari Rust (open_official_link); frontend tidak diberi izin opener.
+tauri-plugin-opener = "2.7.2"
+serde = { version = "1.0.229", features = ["derive"] }
+thiserror = "2.0.21"
+tokio = { version = "1.54.1", features = ["io-util", "macros", "process", "rt", "sync", "time"] }
+tokio-util = "0.7.20"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Devices_DeviceAndDriverInstallation", "Win32_Foundation"] }
 
 [profile.release]
 codegen-units = 1
