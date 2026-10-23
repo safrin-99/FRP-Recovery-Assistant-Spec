@@ -10,7 +10,13 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   clearScreen: false,
-  server: { host: '127.0.0.1', port: 1420, strictPort: true },
+  server: {
+    host: '127.0.0.1',
+    port: 1420,
+    strictPort: true,
+    // Jangan awasi output build Rust (EBUSY saat cargo menulis file di src-tauri/target).
+    watch: { ignored: ['**/src-tauri/**'] },
+  },
   build: { target: 'es2022', sourcemap: false },
   test: {
     environment: 'jsdom',

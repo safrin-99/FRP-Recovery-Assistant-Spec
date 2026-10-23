@@ -46,7 +46,7 @@ Paket spesifikasi untuk membangun aplikasi desktop Windows melalui Claude Code.
 | AI Assistant (provider, consent, redaksi) | **Belum** — Milestone 4; status `Belum dikonfigurasi` |
 | Supabase (Auth, sinkron/backup, laporan tim) | **Belum** — Milestone 3; project Supabase khusus belum dibuat |
 | Backend AI via Supabase Edge Functions | **Belum** — Milestone 4 |
-| Shell Tauri (`src-tauri/`) | Kerangka ada, **belum pernah dikompilasi** (Rust/MSVC belum terpasang) |
+| Shell Tauri (`src-tauri/`) | Dikompilasi dan dijalankan (`npm run tauri dev`) di Windows 11 dengan Rust 1.99.1 + VS Build Tools 2022; jendela ter-maximize dan status maximize terbaca lewat IPC. Klik minimize/maximize/close dan drag titlebar belum diuji otomatis |
 | Installer Windows | **Belum** — Milestone 5 |
 
 Aplikasi tidak melakukan factory reset, flashing, unlock bootloader, penghapusan data, atau
