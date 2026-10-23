@@ -9,6 +9,7 @@ import { ExternalLink } from '@/components/ui/ExternalLink'
 import { InlineAlert } from '@/components/ui/InlineAlert'
 import { Panel } from '@/components/ui/Panel'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { BACKUP_STATUS_LABELS } from '@/features/screenLock/model'
 import { useAppStore } from '@/store/appStore'
 import type { BackupAnswer, UserAnswer } from '@/types/domain'
 
@@ -18,18 +19,17 @@ const YES_NO_OPTIONS = [
   { value: 'no', label: 'Tidak' },
 ]
 
-const BACKUP_OPTIONS = [
-  { value: 'unknown', label: 'Tidak tahu' },
-  { value: 'yes', label: 'Ya, backup tersedia' },
-  { value: 'no', label: 'Tidak ada backup' },
-]
+const BACKUP_OPTIONS = (Object.entries(BACKUP_STATUS_LABELS) as Array<[BackupAnswer, string]>).map(([value, label]) => ({
+  value,
+  label,
+}))
 
 function isUserAnswer(value: string): value is UserAnswer {
   return value === 'unanswered' || value === 'yes' || value === 'no'
 }
 
 function isBackupAnswer(value: string): value is BackupAnswer {
-  return value === 'unknown' || value === 'yes' || value === 'no'
+  return value in BACKUP_STATUS_LABELS
 }
 
 function SituationCard({
@@ -118,7 +118,7 @@ export function FrpRecoveryPage() {
             }}
           />
           <AppSelect
-            label="Backup data tersedia?"
+            label="Status backup data"
             value={backupAvailable}
             options={BACKUP_OPTIONS}
             onValueChange={(value) => {

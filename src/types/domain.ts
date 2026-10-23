@@ -96,4 +96,5 @@ export type NativeResult<T> =
   | { kind: 'error'; message: string }
 
 export type UserAnswer = 'unanswered' | 'yes' | 'no'
-export type BackupAnswer = 'unknown' | 'yes' | 'no'
+/** Status backup — nilai sama dengan `recovery_cases.backup_status` (PRD §7.2). */
+export type BackupAnswer = 'not_checked' | 'available_verified' | 'partial' | 'none' | 'unknown'

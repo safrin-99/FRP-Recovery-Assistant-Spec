@@ -132,7 +132,7 @@ const initialState = {
   logs: [] as LogEntry[],
   screenLocked: 'unanswered' as UserAnswer,
   dataImportant: 'unanswered' as UserAnswer,
-  backupAvailable: 'unknown' as BackupAnswer,
+  backupAvailable: 'not_checked' as BackupAnswer,
 }
 
 export const useAppStore = create<AppState>()((set, get) => {
@@ -393,7 +393,7 @@ function createDemoDeviceCached(): DeviceSnapshot {
 
 /** Data Preservation Mode: layar terkunci + (data penting atau backup belum pasti). */
 export function selectDataPreservation(state: AppState): boolean {
-  return state.screenLocked === 'yes' && (state.dataImportant === 'yes' || state.backupAvailable !== 'yes')
+  return state.screenLocked === 'yes' && (state.dataImportant === 'yes' || state.backupAvailable !== 'available_verified')
 }
 
 /** Apakah tombol "Mulai Diagnosis" dapat dipakai, dan alasannya bila tidak. */

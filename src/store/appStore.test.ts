@@ -6,7 +6,8 @@ import {
   type DiagnosticEvent,
   type NativeService,
 } from '@/services/nativeService'
-import type { DeviceSnapshot } from '@/types/domain'
+import { BACKUP_STATUS_LABELS } from '@/features/screenLock/model'
+import type { BackupAnswer, DeviceSnapshot } from '@/types/domain'
 import { selectActiveDevice, selectDataPreservation, selectDiagnosisAvailability, useAppStore } from './appStore'
 
 const get = () => useAppStore.getState()
@@ -301,12 +302,28 @@ describe('appStore', () => {
   it('activates Data Preservation Mode only when the screen is locked and data/backup is at risk', () => {
     expect(selectDataPreservation(get())).toBe(false)
     get().setScreenLocked('yes')
-    expect(selectDataPreservation(get())).toBe(true) // backup unknown
-    get().setBackupAvailable('yes')
+    expect(selectDataPreservation(get())).toBe(true) // backup belum diperiksa
+    get().setBackupAvailable('partial')
+    expect(selectDataPreservation(get())).toBe(true) // sebagian tidak cukup
+    get().setBackupAvailable('available_verified')
     expect(selectDataPreservation(get())).toBe(false)
     get().setDataImportant('yes')
     expect(selectDataPreservation(get())).toBe(true)
     get().setScreenLocked('no')
     expect(selectDataPreservation(get())).toBe(false)
+  })
+})
+
+describe('backup status options', () => {
+  it('keeps the FRP Recovery backup question identical to the PRD statuses', () => {
+    // Record yang eksaustif: menambah nilai ke BackupAnswer tanpa label akan gagal di compile.
+    const answers: Record<BackupAnswer, true> = {
+      not_checked: true,
+      available_verified: true,
+      partial: true,
+      none: true,
+      unknown: true,
+    }
+    expect(Object.keys(BACKUP_STATUS_LABELS).sort()).toEqual(Object.keys(answers).sort())
   })
 })
