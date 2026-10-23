@@ -40,6 +40,8 @@ Paket spesifikasi untuk membangun aplikasi desktop Windows melalui Claude Code.
 | UI React (9 halaman, sidebar, titlebar, panel Home) | Ada; diuji Vitest + Playwright (Edge) |
 | `AppSelect` / `AppCombobox` kustom | Ada; tanpa `<select>`/`<datalist>` native, diuji keyboard |
 | Mode Demo (data contoh berbadge `DEMO`) | Ada; nonaktif secara default (Settings → Mode Demo) |
+| Tema gelap (default) / terang | Ada; Settings → Tampilan → Tema, disimpan per komputer |
+| Petunjuk "kenapa tidak terdeteksi" + panduan "Cara menghubungkan" | Ada; Auto Detect membaca antarmuka USB dari Windows (mis. ponsel terlihat tetapi USB debugging mati) |
 | Pencarian & verifikasi Platform-Tools (halaman Tools) | Ada; diuji dengan adb/fastboot 37.0.1 asli |
 | Auto Detect + Device Info (ADB/Fastboot) | Ada; diuji di aplikasi desktop dengan alat asli **tanpa ponsel** (jalur "tidak ada perangkat"). Uji dengan ponsel fisik (authorized/unauthorized/Fastboot) **belum** |
 | Diagnosis bertahap + batal (ADB Diagnostics, Recovery/Fastboot Guide) | Ada; hanya membaca status. Pembatalan diuji di unit test, belum dengan ponsel |

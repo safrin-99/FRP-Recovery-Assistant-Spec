@@ -148,6 +148,31 @@ describe('App shell', () => {
     expect(screen.getByText(/Serial, IMEI, path pengguna/)).toBeInTheDocument()
   })
 
+  it('shows brand-specific connection steps without asking for credentials', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(within(screen.getByRole('group', { name: 'Pilih Brand Perangkat' })).getByRole('button', { name: /Xiaomi/ }))
+    await user.click(screen.getByRole('button', { name: 'Cara menghubungkan' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Cara menghubungkan ponsel' })
+    expect(within(dialog).getByText(/Versi OS/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/Setelan tambahan → Opsi pengembang/)).toBeInTheDocument()
+    expect(dialog.textContent ?? '').not.toMatch(/kata sandi|password|PIN Anda/i)
+    await user.keyboard('{Escape}')
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
+  it('switches to the light theme from Settings', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(sidebarNav().getByRole('button', { name: 'Settings' }))
+    await user.click(screen.getByRole('combobox', { name: 'Tema' }))
+    await user.click(await screen.findByRole('option', { name: 'Terang' }))
+    expect(document.documentElement.dataset.theme).toBe('light')
+    // Hero tetap memakai token gelap sebagai banner merek.
+    await user.click(sidebarNav().getByRole('button', { name: 'Home' }))
+    expect(screen.getByRole('heading', { name: 'FRP Recovery', level: 1 }).closest('section')).toHaveAttribute('data-theme', 'dark')
+  })
+
   it('opens Help with the safety scope', async () => {
     const user = userEvent.setup()
     render(<App />)

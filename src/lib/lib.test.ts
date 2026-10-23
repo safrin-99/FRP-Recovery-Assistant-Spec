@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { DeviceSnapshotSchema } from '@/types/domain'
-import { useSettingsStore } from '@/store/settingsStore'
+import type { DriverEntry } from '@/services/nativeTypes'
+import { THEME_STORAGE_KEY, useSettingsStore } from '@/store/settingsStore'
+import { usbHintFromReport } from './usbHint'
 import { isSafeExternalUrl } from './external'
 import { formatLogTime, orUnknown } from './format'
 
@@ -66,9 +68,49 @@ describe('settingsStore validation', () => {
     const { update } = useSettingsStore.getState()
     expect(useSettingsStore.getState().aiProvider).toBe('disabled')
     expect(update({ aiProvider: 'cloud-byok' })).toBe(false)
-    expect(update({ theme: 'light' })).toBe(false)
+    expect(update({ theme: 'sepia' })).toBe(false)
+    expect(update({ language: 'en' })).toBe(false)
     expect(update({ aiHistoryEnabled: true })).toBe(false)
     expect(useSettingsStore.getState()).toMatchObject({ theme: 'dark', aiProvider: 'disabled', aiHistoryEnabled: false })
-    expect(update({ theme: 'dark' })).toBe(true)
+  })
+
+  it('applies and remembers the light theme', () => {
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(useSettingsStore.getState().update({ theme: 'light' })).toBe(true)
+    expect(document.documentElement.dataset.theme).toBe('light')
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('light')
+
+    expect(useSettingsStore.getState().update({ theme: 'dark' })).toBe(true)
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark')
+  })
+})
+
+describe('usbHintFromReport', () => {
+  const entry = (overrides: Partial<DriverEntry>): DriverEntry => ({
+    name: 'Redmi Note 13',
+    interface: 'android-usb',
+    vendorGuess: 'Xiaomi',
+    status: 'ok',
+    problemCode: null,
+    ...overrides,
+  })
+  const report = (entries: DriverEntry[]) => ({ entries, level: 'info' as const, summary: '' })
+
+  it('explains a phone connected without USB debugging (MTP only)', () => {
+    expect(usbHintFromReport(report([entry({})]))).toBe(
+      'Ponsel Xiaomi ("Redmi Note 13") terhubung ke Windows, tetapi USB debugging belum aktif. Aktifkan Opsi pengembang → USB debugging di ponsel, lalu izinkan komputer ini.',
+    )
+  })
+
+  it('prioritizes driver problems and debug interfaces that are not ready', () => {
+    expect(usbHintFromReport(report([entry({}), entry({ name: 'ADB Interface', interface: 'adb', status: 'problem', problemCode: 28 })]))).toMatch(
+      /"ADB Interface".*bermasalah \(kode 28\)/,
+    )
+    expect(usbHintFromReport(report([entry({ interface: 'adb' })]))).toMatch(/Izinkan/)
+  })
+
+  it('returns nothing when Windows sees no Android device', () => {
+    expect(usbHintFromReport(report([]))).toBeNull()
   })
 })

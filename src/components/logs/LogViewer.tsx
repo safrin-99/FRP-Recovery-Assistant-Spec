@@ -38,7 +38,7 @@ export function LogViewer({
       aria-label="Log diagnosis"
       aria-live="polite"
       className={cn(
-        'focus-ring min-h-0 overflow-y-auto rounded-ui-md border border-line bg-[#091019] px-3 py-2.5 font-[inherit]',
+        'focus-ring min-h-0 overflow-y-auto rounded-ui-md border border-line bg-log px-3 py-2.5 font-[inherit]',
         className,
       )}
     >

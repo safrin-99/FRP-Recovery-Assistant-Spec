@@ -10,7 +10,7 @@ const NOT_YET = 'Belum tersedia'
 
 const THEME_OPTIONS = [
   { value: 'dark', label: 'Gelap (default)' },
-  { value: 'light', label: 'Terang', description: NOT_YET, disabled: true },
+  { value: 'light', label: 'Terang' },
 ]
 
 const LANGUAGE_OPTIONS = [
@@ -49,8 +49,9 @@ export function SettingsPage() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="Settings" description="Pengaturan aplikasi, privasi, dan AI Assistant." />
-      <InlineAlert tone="info" title="Pengaturan sesi">
-        Pada versi ini pengaturan hanya berlaku selama aplikasi berjalan. Penyimpanan permanen dijadwalkan pada Milestone 3.
+      <InlineAlert tone="info" title="Penyimpanan pengaturan">
+        Tema disimpan di komputer ini. Pengaturan lain masih hanya berlaku selama aplikasi berjalan; penyimpanan
+        permanen dijadwalkan pada Milestone 3.
       </InlineAlert>
 
       <Panel aria-labelledby="demo-title" className="p-5">

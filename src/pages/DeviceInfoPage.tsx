@@ -1,5 +1,6 @@
 import { PlugZap, Search } from 'lucide-react'
-import { deviceRows } from '@/components/device/DeviceInfoPanel'
+import { ConnectionGuideButton } from '@/components/device/ConnectionGuide'
+import { detectionHint, deviceRows } from '@/components/device/DeviceInfoPanel'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -65,7 +66,11 @@ export function DeviceInfoPage() {
           <EmptyState
             icon={PlugZap}
             title="Tidak ada perangkat"
-            description="Hubungkan perangkat via USB dan izinkan USB debugging bila diminta, lalu jalankan Auto Detect."
+            description={
+              detectionHint(detection) ??
+              'Hubungkan perangkat via USB dan izinkan USB debugging bila diminta, lalu jalankan Auto Detect.'
+            }
+            action={<ConnectionGuideButton />}
           />
         )}
 

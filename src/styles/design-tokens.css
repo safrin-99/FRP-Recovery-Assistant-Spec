@@ -1,9 +1,42 @@
 /*
  * Design tokens — sumber warna/radius/spacing utama (DESIGN.md §3).
- * Nilai inti disalin persis dari DESIGN.md. Token turunan (soft/hover/z-index/motion)
- * didefinisikan di sini juga agar komponen tidak menyebar hex langsung.
+ * Tema gelap (default) disalin persis dari DESIGN.md. Tema terang (DESIGN.md §3.1) memakai
+ * palette turunan dengan aksen biru yang sama. Tema dipilih lewat atribut `data-theme` pada
+ * <html>; elemen dengan `data-theme="dark"` (mis. hero) selalu memakai token gelap.
  */
 :root {
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 13px;
+  --radius-xl: 16px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Z-index terstandar (DESIGN.md §16). */
+  --z-sidebar: 10;
+  --z-titlebar: 20;
+  --z-dialog-overlay: 60;
+  --z-dialog: 61;
+  --z-popover: 70;
+
+  /* Motion (DESIGN.md §11: 120–220 ms). */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Font lokal (bundel @fontsource-variable/inter); tanpa Google Fonts di runtime. */
+  --font-stack: 'Inter Variable', 'Segoe UI', Arial, sans-serif;
+}
+
+/* Tema gelap — default. */
+:root,
+[data-theme='dark'] {
   color-scheme: dark;
 
   --bg-app: #080f19;
@@ -12,6 +45,8 @@
   --bg-panel: #111c2a;
   --bg-panel-raised: #152233;
   --bg-input: #0b1420;
+  --bg-log: #091019;
+  --bg-track: #2c394c;
 
   --border-subtle: #223246;
   --border-default: #34475d;
@@ -32,40 +67,53 @@
   --gradient-primary: linear-gradient(105deg, #11c6ee 0%, #1689ff 48%, #1558f5 100%);
   --gradient-selected: linear-gradient(145deg, #174c91 0%, #1259ca 100%);
 
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 13px;
-  --radius-xl: 16px;
+  --shadow-popover: 0 10px 28px -8px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.35);
+}
 
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
+/*
+ * Tema terang — opsional (keputusan pemilik proyek, DESIGN.md v2.2). Kontras teks terhadap
+ * panel putih ≥ 4.5:1; cyan/hijau/kuning digelapkan agar terbaca sebagai teks.
+ */
+[data-theme='light'] {
+  color-scheme: light;
 
-  /* Turunan (bukan palette baru): tint status dari token status yang sama. */
+  --bg-app: #eef2f8;
+  --bg-titlebar: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-panel-raised: #f3f6fb;
+  --bg-input: #f6f8fc;
+  --bg-log: #f6f8fb;
+  --bg-track: #dfe6f0;
+
+  --border-subtle: #dde4ee;
+  --border-default: #c6d2e1;
+  --border-strong: #93a6bf;
+
+  --text-primary: #0f1b2d;
+  --text-secondary: #3b4d68;
+  --text-muted: #5d6f8a;
+
+  --accent-blue: #1264f5;
+  --accent-blue-hover: #0d52cf;
+  --accent-cyan: #0a7ea4;
+  --accent-cyan-soft: #d6eef8;
+  --status-success: #0b7d55;
+  --status-warning: #9a5800;
+  --status-danger: #c62f28;
+
+  --gradient-primary: linear-gradient(105deg, #11c6ee 0%, #1689ff 48%, #1558f5 100%);
+  --gradient-selected: linear-gradient(145deg, #2f74e8 0%, #1259ca 100%);
+
+  --shadow-popover: 0 10px 28px -8px rgb(15 27 45 / 0.18), 0 2px 6px rgb(15 27 45 / 0.08);
+}
+
+/* Turunan dihitung ulang di setiap lingkup tema (bukan palette baru). */
+:root,
+[data-theme] {
   --status-success-soft: color-mix(in srgb, var(--status-success) 14%, transparent);
   --status-warning-soft: color-mix(in srgb, var(--status-warning) 14%, transparent);
   --status-danger-soft: color-mix(in srgb, var(--status-danger) 14%, transparent);
   --status-info-soft: color-mix(in srgb, var(--accent-cyan) 14%, transparent);
-
-  /* Z-index terstandar (DESIGN.md §16). */
-  --z-sidebar: 10;
-  --z-titlebar: 20;
-  --z-dialog-overlay: 60;
-  --z-dialog: 61;
-  --z-popover: 70;
-
-  --shadow-popover: 0 10px 28px -8px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.35);
   --focus-ring: 0 0 0 2px var(--bg-app), 0 0 0 4px var(--accent-cyan);
-
-  /* Motion (DESIGN.md §11: 120–220 ms). */
-  --duration-fast: 120ms;
-  --duration-base: 180ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-
-  /* Font lokal (bundel @fontsource-variable/inter); tanpa Google Fonts di runtime. */
-  --font-stack: 'Inter Variable', 'Segoe UI', Arial, sans-serif;
 }

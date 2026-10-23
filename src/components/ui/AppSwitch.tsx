@@ -38,10 +38,10 @@ export function AppSwitch({
         aria-describedby={description ? descId : undefined}
         className={cn(
           'focus-ring relative h-6 w-11 shrink-0 rounded-full border border-line-default transition-colors duration-[var(--duration-fast)]',
-          'data-[state=checked]:border-transparent data-[state=checked]:bg-blue data-[state=unchecked]:bg-field disabled:opacity-60',
+          'data-[state=checked]:border-transparent data-[state=checked]:bg-blue data-[state=unchecked]:bg-line-default disabled:opacity-60',
         )}
       >
-        <Switch.Thumb className="block size-[18px] translate-x-[3px] rounded-full bg-fg transition-transform duration-[var(--duration-fast)] data-[state=checked]:translate-x-[23px]" />
+        <Switch.Thumb className="block size-[18px] translate-x-[3px] rounded-full bg-white shadow-sm transition-transform duration-[var(--duration-fast)] data-[state=checked]:translate-x-[23px]" />
       </Switch.Root>
     </div>
   )

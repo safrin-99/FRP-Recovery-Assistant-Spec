@@ -1,6 +1,6 @@
 # DESIGN.md — FRP Recovery Assistant / Android Recovery & Diagnostics Suite
 
-> **Versi revisi:** 2.1 — 23 Oktober 2026 (menambahkan §18 Akun & Sinkronisasi untuk Supabase opsional). Dokumen ini mengunci arah visual, states, dan perilaku komponen. Screenshot [`reference-ui.png`](./reference-ui.png) adalah referensi komposisi, proporsi, dan palette. Teks lama pada screenshot yang menyiratkan bypass tidak mengesampingkan label aman dan fitur yang ditetapkan `PRD.md`. Jangan mengganti UI dengan dashboard template generik atau mengubah desain utama tanpa persetujuan.
+> **Versi revisi:** 2.2 — 23 Oktober 2026 (2.1: §18 Akun & Sinkronisasi untuk Supabase opsional; 2.2: §3.1 tema terang opsional atas permintaan pemilik proyek). Dokumen ini mengunci arah visual, states, dan perilaku komponen. Screenshot [`reference-ui.png`](./reference-ui.png) adalah referensi komposisi, proporsi, dan palette. Teks lama pada screenshot yang menyiratkan bypass tidak mengesampingkan label aman dan fitur yang ditetapkan `PRD.md`. Jangan mengganti UI dengan dashboard template generik atau mengubah desain utama tanpa persetujuan.
 
 ## 1. Target Visual
 
@@ -99,6 +99,14 @@ Gunakan CSS custom properties dalam `src/styles/design-tokens.css` atau lokasi s
 ```
 
 Token boleh disetel secara kecil setelah dibandingkan dengan screenshot, tetapi jangan mengganti keseluruhan palette. Hindari menyebar hex color berbeda-beda langsung pada komponen.
+
+### 3.1 Tema terang (opsional)
+
+- Tema gelap tetap **default** dan acuan visual `reference-ui.png`. Tema terang adalah pilihan pengguna di Settings → Tampilan → Tema, disimpan per komputer.
+- Diterapkan lewat atribut `data-theme` pada `<html>` dengan token yang sama namanya (`--bg-*`, `--border-*`, `--text-*`, `--accent-*`, `--status-*`). Komponen tidak boleh memakai hex langsung agar kedua tema konsisten.
+- Palette terang: latar `#eef2f8`, panel `#ffffff`, raised `#f3f6fb`, border `#dde4ee`/`#c6d2e1`/`#93a6bf`, teks `#0f1b2d`/`#3b4d68`/`#5d6f8a`, aksen biru tetap `#1264f5`. Cyan/hijau/kuning/merah digelapkan (`#0a7ea4`, `#0b7d55`, `#9a5800`, `#c62f28`) agar kontras teks ≥ 4.5:1 di atas putih.
+- Hero banner tetap bernuansa gelap di kedua tema (`data-theme="dark"` pada hero) sebagai banner merek; teks di dalamnya memakai token gelap.
+- Kartu/brand/tombol terpilih tetap fill biru dengan teks putih di kedua tema.
 
 ## 4. Tipografi
 
@@ -302,7 +310,7 @@ Semua komponen perlu memiliki state default, hover, focus-visible, active, disab
 ### DON'T
 
 - Jangan mengubah layout menjadi sidebar kecil + banyak card generik.
-- Jangan mengganti warna utama menjadi ungu, hijau, putih terang, atau palette baru.
+- Jangan mengganti warna utama tema default menjadi ungu, hijau, putih terang, atau palette baru. Tema terang hanya tersedia sebagai pilihan sesuai §3.1.
 - Jangan menambahkan gradient/glow ke semua kartu.
 - Jangan menggunakan emoji, logo asal, placeholder lorem ipsum, atau font acak.
 - Jangan mengisi semua panel dengan angka dummy tanpa status Demo.

@@ -83,6 +83,8 @@ export function HeroBanner() {
   return (
     <section
       aria-labelledby="hero-title"
+      // Hero adalah banner merek bernuansa gelap di kedua tema (DESIGN.md §3.1).
+      data-theme="dark"
       className="relative min-h-[clamp(232px,30vh,308px)] shrink-0 overflow-hidden rounded-ui-lg border border-line bg-[#0a1424]"
     >
       {/* Glow biru terkendali di tengah/kanan */}

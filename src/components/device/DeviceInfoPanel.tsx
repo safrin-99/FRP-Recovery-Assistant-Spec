@@ -2,8 +2,9 @@ import { PlugZap, Search } from 'lucide-react'
 import { AUTHORIZATION_LABELS, MODE_LABELS, TRANSPORT_LABELS } from '@/lib/deviceLabels'
 import { cn } from '@/lib/cn'
 import { orUnknown } from '@/lib/format'
-import { selectActiveDevice, useAppStore } from '@/store/appStore'
+import { NO_DEVICE_MESSAGE, selectActiveDevice, useAppStore, type AppState } from '@/store/appStore'
 import type { DeviceSnapshot } from '@/types/domain'
+import { ConnectionGuideButton } from '@/components/device/ConnectionGuide'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Panel } from '@/components/ui/Panel'
@@ -32,6 +33,12 @@ export function deviceRows(device: DeviceSnapshot): Array<{ label: string; value
 /** Baris ringkas untuk panel kanan Home (tanpa Otorisasi/Mode agar sejajar referensi). */
 const COMPACT_HIDDEN = new Set(['Otorisasi', 'Mode'])
 
+/** Pesan deteksi yang layak ditampilkan di empty state (error atau petunjuk penyebab). */
+export function detectionHint(detection: AppState['detection']): string | null {
+  if (!detection.message || detection.message === NO_DEVICE_MESSAGE) return null
+  return detection.status === 'error' || detection.status === 'none' ? detection.message : null
+}
+
 function PhoneGlyph() {
   return (
     <svg viewBox="0 0 44 84" aria-hidden className="h-[84px] w-[44px] shrink-0">
@@ -41,7 +48,7 @@ function PhoneGlyph() {
           <stop offset="1" stopColor="#1558f5" />
         </linearGradient>
       </defs>
-      <rect x="1" y="1" width="42" height="82" rx="7" fill="#0b1420" stroke="#42617f" strokeWidth="2" />
+      <rect x="1" y="1" width="42" height="82" rx="7" strokeWidth="2" className="fill-field stroke-line-strong" />
       <rect x="5" y="6" width="34" height="72" rx="4" fill="url(#device-screen)" />
     </svg>
   )
@@ -90,20 +97,19 @@ export function DeviceInfoPanel({ className }: { className?: string }) {
           className="flex-1"
           icon={PlugZap}
           title="Tidak ada perangkat"
-          description={
-            detection.status === 'error' && detection.message
-              ? detection.message
-              : 'Hubungkan perangkat via USB, lalu jalankan Auto Detect.'
-          }
+          description={detectionHint(detection) ?? 'Hubungkan perangkat via USB, lalu jalankan Auto Detect.'}
           action={
-            <Button
-              size="sm"
-              icon={<Search aria-hidden className="size-4" />}
-              loading={detection.status === 'detecting'}
-              onClick={() => void autoDetect()}
-            >
-              Auto Detect
-            </Button>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button
+                size="sm"
+                icon={<Search aria-hidden className="size-4" />}
+                loading={detection.status === 'detecting'}
+                onClick={() => void autoDetect()}
+              >
+                Auto Detect
+              </Button>
+              <ConnectionGuideButton />
+            </div>
           }
         />
       )}

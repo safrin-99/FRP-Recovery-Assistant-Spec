@@ -226,7 +226,7 @@ Header atas: logo perisai, nama aplikasi, subjudul, Settings, Logs, Help, dan ko
 
 ### 7.9 Settings
 
-- Tema (default dark), lokasi Android Platform-Tools, lokasi data/log, bahasa, opsi privasi, pengaturan AI, dan pengaturan penyimpanan riwayat AI.
+- Tema (default dark; tema terang opsional sesuai DESIGN.md §3.1, disimpan per komputer), lokasi Android Platform-Tools, lokasi data/log, bahasa, opsi privasi, pengaturan AI, dan pengaturan penyimpanan riwayat AI.
 - Akun & Sinkronisasi (Supabase, §6.1): login teknisi, status sinkron terakhir, tim, consent sinkron, hentikan sinkron, dan hapus data cloud. Default: tidak login dan sinkron nonaktif.
 - Provider AI default: `Nonaktif`. Provider cloud tidak boleh aktif sampai pengguna mengonfigurasi dan menyetujui pengiriman data. Pilihan lokal hanya boleh ditampilkan sebagai tersedia jika benar-benar diimplementasikan dan lolos tes.
 - Perubahan path harus divalidasi dan diuji sebelum disimpan.

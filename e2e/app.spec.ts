@@ -112,6 +112,8 @@ test.describe('1536×1024 (target referensi)', () => {
   })
 
   test('every page renders without native dropdowns or horizontal overflow', async ({ page }) => {
+    // 9 halaman + screenshot: bisa melewati batas default 30 dtk saat worker paralel sibuk.
+    test.setTimeout(90_000)
     await enableDemo(page)
     for (const target of PAGES) {
       await goTo(page, target.label)
@@ -184,6 +186,38 @@ test.describe('1536×1024 (target referensi)', () => {
     await cancel.click()
     await expect(page.getByRole('button', { name: /Mulai Diagnosis FRP/ })).toBeVisible()
     await expect(page.getByRole('log', { name: 'Log diagnosis' })).toContainText('Diagnosis dibatalkan oleh pengguna.')
+  })
+})
+
+test.describe('Tema terang', () => {
+  test.use({ viewport: { width: 1536, height: 1024 } })
+
+  test('switches theme, keeps it after reload, and renders pages without overflow', async ({ page }) => {
+    await enableDemo(page)
+    await goTo(page, 'Settings')
+    await page.getByRole('combobox', { name: 'Tema' }).click()
+    await page.getByRole('option', { name: 'Terang' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
+    expect(bg).toBe('rgb(238, 242, 248)')
+
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    await enableDemo(page)
+    await page.waitForTimeout(300)
+    expect(await horizontalOverflow(page)).toBe(false)
+    await page.screenshot({ path: `${SHOTS}/light-home-demo-1536x1024.png` })
+    for (const target of ['FRP Recovery', 'Settings', 'Logs'] as const) {
+      await goTo(page, target)
+      expect(await visibleNativeDropdowns(page)).toBe(0)
+      await page.screenshot({ path: `${SHOTS}/light-${target.toLowerCase().replace(' ', '-')}-1536x1024.png` })
+    }
+
+    // Kembalikan ke gelap agar tidak memengaruhi uji lain di profil yang sama.
+    await goTo(page, 'Settings')
+    await page.getByRole('combobox', { name: 'Tema' }).click()
+    await page.getByRole('option', { name: 'Gelap (default)' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   })
 })
 

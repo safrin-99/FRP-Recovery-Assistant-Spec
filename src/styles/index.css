@@ -13,6 +13,8 @@
   --color-panel: var(--bg-panel);
   --color-raised: var(--bg-panel-raised);
   --color-field: var(--bg-input);
+  --color-log: var(--bg-log);
+  --color-track: var(--bg-track);
 
   --color-line: var(--border-subtle);
   --color-line-default: var(--border-default);

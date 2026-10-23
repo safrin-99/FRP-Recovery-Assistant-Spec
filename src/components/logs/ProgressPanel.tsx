@@ -42,7 +42,7 @@ export function ProgressPanel({ className }: { className?: string }) {
         aria-valuemax={100}
         aria-valuenow={percent}
         aria-valuetext={run.stage ?? `${percent}%`}
-        className="mt-3 h-3 shrink-0 overflow-hidden rounded-full bg-[#2c394c]"
+        className="mt-3 h-3 shrink-0 overflow-hidden rounded-full bg-track"
       >
         <div
           className="h-full rounded-full bg-[image:var(--gradient-primary)] transition-[width] duration-[var(--duration-base)]"

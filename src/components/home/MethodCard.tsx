@@ -29,7 +29,7 @@ export function MethodCard({
     >
       <Icon aria-hidden className="size-10 shrink-0" strokeWidth={1.6} />
       <span className="text-base leading-tight font-semibold">{title}</span>
-      <span className={cn('text-sm leading-snug', selected ? 'text-fg-2' : 'text-fg-muted')}>{description}</span>
+      <span className={cn('text-sm leading-snug', selected ? 'text-white/80' : 'text-fg-muted')}>{description}</span>
     </button>
   )
 }

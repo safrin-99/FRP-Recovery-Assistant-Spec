@@ -27,11 +27,11 @@ export function PrimaryActionButton({
         disabled={!running && disabled}
         aria-describedby={!running && disabled && disabledReason ? reasonId : undefined}
         className={cn(
-          'focus-ring flex h-[clamp(56px,6.8vh,70px)] w-full items-center justify-center gap-3.5 rounded-ui-lg text-[20px] font-semibold text-white',
+          'focus-ring flex h-[clamp(56px,6.8vh,70px)] w-full items-center justify-center gap-3.5 rounded-ui-lg text-[20px] font-semibold',
           'transition-[filter,transform,background] duration-[var(--duration-fast)]',
           running
-            ? 'border border-line-strong bg-raised hover:bg-panel'
-            : 'bg-[image:var(--gradient-primary)] enabled:hover:brightness-110 enabled:active:translate-y-px enabled:active:brightness-95',
+            ? 'border border-line-strong bg-raised text-fg hover:bg-panel'
+            : 'bg-[image:var(--gradient-primary)] text-white enabled:hover:brightness-110 enabled:active:translate-y-px enabled:active:brightness-95',
           'disabled:cursor-not-allowed disabled:opacity-45 disabled:saturate-50',
         )}
       >

@@ -86,6 +86,26 @@ describe('appStore', () => {
     expect(get().liveDevice).toBeNull()
   })
 
+  it('explains why no device was found when Windows sees the phone without ADB', async () => {
+    setNativeServiceForTests({
+      ...fakeDesktopService([]).service,
+      checkDriverStatus: () =>
+        Promise.resolve({
+          kind: 'ok',
+          value: {
+            entries: [{ name: 'Redmi Note 13', interface: 'android-usb', vendorGuess: 'Xiaomi', status: 'ok', problemCode: null }],
+            level: 'info',
+            summary: '',
+          },
+        }),
+    })
+    await get().autoDetect()
+    expect(get().detection.status).toBe('none')
+    expect(get().detection.message).toMatch(/Redmi Note 13.*USB debugging belum aktif/)
+    expect(get().logs.at(-1)).toMatchObject({ level: 'warning', category: 'USB' })
+    expect(get().liveDevice).toBeNull()
+  })
+
   it('reports backend errors without inventing a device', async () => {
     setNativeServiceForTests({
       ...fakeDesktopService().service,

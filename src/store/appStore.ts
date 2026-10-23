@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { BRAND_LABELS, officialServiceLink } from '@/data/catalog'
 import { createDemoDevice, DEMO_RUN_STAGES, DEMO_STAGE_DELAY_MS } from '@/data/demo'
 import { openOfficialLink } from '@/lib/external'
+import { usbHintFromReport } from '@/lib/usbHint'
 import { deviceFromDto, nativeService, type DiagnosticEvent } from '@/services/nativeService'
 import type {
   BackupAnswer,
@@ -20,6 +21,7 @@ import type {
 
 const MAX_LOGS = 500
 const DEMO_DETECT_DELAY_MS = 500
+export const NO_DEVICE_MESSAGE = 'Tidak ada perangkat.'
 
 let logSeq = 0
 let runTimer: ReturnType<typeof setTimeout> | null = null
@@ -300,8 +302,12 @@ export const useAppStore = create<AppState>()((set, get) => {
       const { devices } = outcome.value
       const primary = devices.find((device) => device.authorization === 'authorized') ?? devices[0]
       if (!primary) {
-        set({ liveDevice: null, detection: { status: 'none', message: 'Tidak ada perangkat.' } })
+        // Jelaskan penyebabnya bila Windows melihat ponsel tanpa antarmuka ADB (mis. USB debugging mati).
+        const report = await nativeService.checkDriverStatus()
+        const hint = report.kind === 'ok' ? usbHintFromReport(report.value) : null
+        set({ liveDevice: null, detection: { status: 'none', message: hint ?? NO_DEVICE_MESSAGE } })
         pushLog(makeLog('info', 'Perangkat', 'Tidak ada perangkat terdeteksi melalui ADB/Fastboot.', 'live'))
+        if (hint) pushLog(makeLog('warning', 'USB', hint, 'live'))
         return
       }
       adoptLiveDevice(primary)
