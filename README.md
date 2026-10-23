@@ -78,6 +78,9 @@ npm run build        # typecheck + build produksi Vite ke dist/
 npm run tauri dev    # jendela desktop — butuh Rust + MSVC
 ```
 
+`npm run tauri` memakai `scripts/tauri.mjs`: bila terminal dibuka sebelum Rust dipasang (PATH belum diperbarui),
+skrip menambahkan `%USERPROFILE%\.cargo\bin` ke PATH untuk perintah itu saja.
+
 Backend Rust (jalankan di `src-tauri/`):
 
 ```bash
