@@ -9,7 +9,7 @@ import { ExternalLink } from '@/components/ui/ExternalLink'
 import { InlineAlert } from '@/components/ui/InlineAlert'
 import { Panel } from '@/components/ui/Panel'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { BACKUP_STATUS_LABELS } from '@/features/screenLock/model'
+import { BACKUP_STATUS_LABELS, BackupStatusSchema } from '@/features/screenLock/model'
 import { useAppStore } from '@/store/appStore'
 import type { BackupAnswer, UserAnswer } from '@/types/domain'
 
@@ -29,7 +29,7 @@ function isUserAnswer(value: string): value is UserAnswer {
 }
 
 function isBackupAnswer(value: string): value is BackupAnswer {
-  return value in BACKUP_STATUS_LABELS
+  return BackupStatusSchema.safeParse(value).success
 }
 
 function SituationCard({

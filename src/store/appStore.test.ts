@@ -6,7 +6,7 @@ import {
   type DiagnosticEvent,
   type NativeService,
 } from '@/services/nativeService'
-import { BACKUP_STATUS_LABELS } from '@/features/screenLock/model'
+import { BACKUP_STATUS_LABELS, BackupStatusSchema, type BackupStatus } from '@/features/screenLock/model'
 import type { BackupAnswer, DeviceSnapshot } from '@/types/domain'
 import { selectActiveDevice, selectDataPreservation, selectDiagnosisAvailability, useAppStore } from './appStore'
 
@@ -324,6 +324,11 @@ describe('backup status options', () => {
       none: true,
       unknown: true,
     }
+    // Kedua arah harus assignable: BackupAnswer (store) identik dengan BackupStatus (schema DB).
+    const toStatus: BackupStatus = 'not_checked' as BackupAnswer
+    const toAnswer: BackupAnswer = 'not_checked' as BackupStatus
+    expect([toStatus, toAnswer]).toEqual(['not_checked', 'not_checked'])
     expect(Object.keys(BACKUP_STATUS_LABELS).sort()).toEqual(Object.keys(answers).sort())
+    expect([...BackupStatusSchema.options].sort()).toEqual(Object.keys(answers).sort())
   })
 })
