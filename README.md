@@ -55,7 +55,7 @@ Paket spesifikasi untuk membangun aplikasi desktop Windows melalui Claude Code.
 | Auto Detect + Device Info (ADB/Fastboot, read-only) | Ada; diuji dengan alat asli **tanpa ponsel**. Uji dengan ponsel fisik (authorized/unauthorized/Fastboot) **belum** |
 | Screen Lock Recovery (PRD v2.4 §7.2) | Ada: intake tiket dengan preferensi data pelanggan tanpa default, Jalur A Guided Factory Reset (preflight, kesiapan akun, dialog consent per tiket, panduan resmi, checklist pasca-reset) dan Jalur B Data Preservation. Hanya panduan; **tidak ada** perintah reset/wipe/flash ke perangkat. Diuji unit/komponen + E2E (browser) |
 | Supabase Auth + `recovery_cases` (simpan/riwayat/hapus) | Kode ada; diuji dengan client tiruan. **Belum** diuji terhadap project Supabase sungguhan |
-| Migration + RLS | Diverifikasi lokal dengan PGlite (`npm run test:db:local`) + uji mutasi. **Belum** diterapkan ke project Supabase |
+| Migration + RLS | Diverifikasi lokal dengan PGlite (`npm run test:db:local`) + uji mutasi. Sudah diterapkan manual lewat SQL Editor ke project Supabase (8 tabel). Verifikasi RLS/policy di project dan tes isolasi dua akun **belum** |
 | Sinkron pengaturan, riwayat log/diagnosis cloud, ekspor | **Belum** |
 | AI Assistant | **Belum**; status `Belum dikonfigurasi` |
 | Installer Windows | Versi uji pernah dibangun; perlu dibangun ulang untuk perubahan ini |

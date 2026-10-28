@@ -126,7 +126,7 @@ export function SettingsPage() {
         <div className="mt-5 max-w-[720px]">
           <AppSwitch
             label="Simpan riwayat percakapan AI"
-            description="Default nonaktif. Bila diaktifkan nanti, riwayat disimpan lokal dan dapat dihapus. Belum tersedia."
+            description="Default nonaktif. Bila diaktifkan nanti, riwayat disimpan ke akun cloud Anda (perlu login) dan dapat dihapus. Belum tersedia."
             checked={aiHistoryEnabled}
             disabled
             onCheckedChange={() => undefined}
